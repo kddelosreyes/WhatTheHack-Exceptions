@@ -3,19 +3,22 @@ package com.feutech.whatthehack;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.Locale;
 
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -28,10 +31,14 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 		OnConnectionFailedListener {
 
 	// comment
-	ImageView photoIV;
+	private ImageView photoIV;
+	private TextView locationTV;
 	GoogleApiClient mGoogleApiClient;
 	protected Location mLastLocation;
 	private Object mContentResolver;
+	
+	private double longitude, latitude;
+	private boolean locationFound = false;
 
 	public static final String TAG = "com.feutech.whatthehack.PostStatusActivity";
 	public static final String PostStatusActivity_PhotoPath = "com.feutech.whatthehack.PostStatusActivity.PhotoPath";
@@ -42,6 +49,8 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 		setContentView(R.layout.activity_post_status);
 
 		photoIV = (ImageView) findViewById(R.id.PostActivity_imageIV);
+		locationTV = (TextView) findViewById(R.id.PostStatus_location_TextView);
+		
 		String photoPath = getIntent().getStringExtra(PostStatusActivity_PhotoPath).trim();
 
 		Bitmap photo = getBitmap(photoPath);
@@ -52,8 +61,38 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 			Log.d(TAG, "photo is null");
 			Log.d(TAG, "file path is : " + getIntent().getStringExtra(PostStatusActivity_PhotoPath));
 		}
-
+		
+		//get location long lat:
 		buildGoogleApiClient();
+		
+		//resolve location to address:
+		String address = resolveAddress(this.latitude, this.longitude);
+		if (!address.isEmpty())
+		{
+			locationTV.setText(address);
+		}
+	}
+	
+	public String resolveAddress(double latitude, double longitude) {
+		String filterAddress = "";
+		Geocoder geoCoder = new Geocoder(getBaseContext(), Locale.getDefault());
+		try {
+			List<Address> addresses = geoCoder.getFromLocation(latitude, longitude, 1);
+
+			if (addresses.size() > 0) {
+                for (int index = 0; index < addresses.get(0).getMaxAddressLineIndex(); index++)
+                    filterAddress += addresses.get(0).getAddressLine(index) + " ";
+            }
+			
+			
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		} catch (Exception e2) {
+			// TODO: handle exception
+
+			e2.printStackTrace();
+		}
+		return filterAddress;
 	}
 
 	public static Bitmap RotateBitmap(Bitmap source, float angle) {
@@ -115,8 +154,13 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 					this,
 					"Long: " + mLastLocation.getLongitude() + ", Lat: "
 							+ mLastLocation.getLatitude(), Toast.LENGTH_SHORT).show();
+			this.latitude = mLastLocation.getLatitude();
+			this.longitude = mLastLocation.getLongitude();
+			this.locationFound = true;
+			
 		} else {
 			Toast.makeText(this, "No location located", Toast.LENGTH_LONG).show();
+			this.locationFound = false;
 		}
 
 	}
