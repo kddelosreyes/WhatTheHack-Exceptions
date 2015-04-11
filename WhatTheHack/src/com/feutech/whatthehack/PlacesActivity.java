@@ -106,10 +106,6 @@ public class PlacesActivity extends Activity implements OnItemClickListener{
 			
 			startActivity(new Intent(PlacesActivity.this, LoginActivity.class));
 			finish();
-
-			Intent intent = new Intent(PlacesActivity.this, LoginActivity.class);
-			startActivity(intent);
-			finish();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
