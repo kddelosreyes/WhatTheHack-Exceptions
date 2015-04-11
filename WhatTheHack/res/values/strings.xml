@@ -4,5 +4,8 @@
     <string name="app_name">WhatTheHack</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="login">LOG IN</string>
+    <string name="signup">Sign Up for ...</string>
+    <string name="needhelp">Need help?</string>
 
 </resources>
