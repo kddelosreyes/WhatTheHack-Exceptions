@@ -9,7 +9,7 @@
     <string name="hint_username">Username</string>
     <string name="hello_world">Hello world!</string>
     <string name="hint_password">Password</string>
-    <string name="title_activity_sign_up">TuristaGramSign Up</string>
+    <string name="title_activity_sign_up">TuristaGram</string>
     <string name="confirm">Verify Password</string>
     <string name="title_activity_places">Places</string>
     <string name="title_activity_post_status">Post Status</string>
