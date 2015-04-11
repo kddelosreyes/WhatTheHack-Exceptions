@@ -1,32 +1,32 @@
 package com.feutech.whatthehack;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-public class PlacesActivity extends Activity {
+import com.feutech.whatthehack.adapters.ListViewPlacesAdapter;
+import com.feutech.whatthehack.database.PlaceHelper;
+import com.feutech.whatthehack.model.Place;
 
-	ListView placesListView;
-	ArrayList<Place> places;
+public class PlacesActivity extends Activity implements OnItemClickListener{
+
+	private ListView placesListView;
+	private ArrayList<Place> places;
+	
+	private ListViewPlacesAdapter adapter;
 	
 	private static final long delay = 2000L;
     private boolean mRecentlyBackPressed = false;
@@ -46,35 +46,32 @@ public class PlacesActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
-		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		
-		String username = sharedPreferences.getString("_username", "");
-		String password = sharedPreferences.getString("_password", "");
-		boolean hasLogged = sharedPreferences.getBoolean("_hasLogged", false);
-		Toast.makeText(getApplicationContext(), username + " " + password + " " + hasLogged, Toast.LENGTH_SHORT).show();
-		
 		places = new ArrayList<Place>();
 
-		// START for testing only
-		places.add(new Place("Manila"));
-		places.add(new Place("Makati"));
-		places.add(new Place("Quezon City"));
-		// END for testing only
-
-		PlacesAdapter placesAdapter = new PlacesAdapter(this, places);
 		placesListView = (ListView) findViewById(R.id.places_listView);
-		placesListView.setAdapter(placesAdapter);
-		placesListView.setOnItemClickListener(new OnItemClickListener() {
+		
+		places = getPlacesFromDB();
+		
+		adapter = new ListViewPlacesAdapter(this, places);
+		
+		placesListView.setAdapter(adapter);
+		placesListView.setOnItemClickListener(this);
+	}
+	
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+		
+	}
 
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				Toast.makeText(PlacesActivity.this.getApplicationContext(),
-						PlacesActivity.this.places.get(position).name,
-						Toast.LENGTH_SHORT).show();
-			}
-		});
-
+	private ArrayList<Place> getPlacesFromDB() {
+		
+		PlaceHelper helper = new PlaceHelper(this);
+		helper.open();
+		helper.create();
+		ArrayList<Place> places = helper.getAllPlaces();
+		helper.close();
+		
+		return places;
 	}
 
 	@Override
@@ -91,6 +88,17 @@ public class PlacesActivity extends Activity {
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_logout) {
+			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+			SharedPreferences.Editor editor = sharedPreferences.edit();
+			
+			editor.putString("_username", "");
+			editor.putString("_password", "");
+			editor.putBoolean("_hasLogged", false);
+			editor.commit();
+			
+			startActivity(new Intent(PlacesActivity.this, LoginActivity.class));
+			finish();
+
 			Intent intent = new Intent(PlacesActivity.this, LoginActivity.class);
 			startActivity(intent);
 			finish();
@@ -112,39 +120,4 @@ public class PlacesActivity extends Activity {
             mExitHandler.postDelayed(mExitRunnable, delay);
         }
     }
-}
-
-class Place {
-	String name;
-
-	public Place(String ucName) {
-		this.name = ucName;
-	}
-}
-
-class PlacesAdapter extends ArrayAdapter<Place> {
-	Activity context;
-	List<Place> places = new ArrayList<Place>();
-
-	public PlacesAdapter(Activity context, List<Place> objects) {
-		super(context, android.R.layout.simple_list_item_1, objects);
-		this.places = objects;
-		this.context = context;
-	}
-
-	@SuppressLint("ViewHolder")
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		LayoutInflater inflater = context.getLayoutInflater();
-		convertView = inflater.inflate(R.layout.list_item_places, null);
-
-		// This is once we get the background from the web
-		// convertView.setBackground(background);
-
-		TextView placeName = (TextView) convertView
-				.findViewById(R.id.places_name_tv);
-		placeName.setText(places.get(position).name);
-
-		return convertView;
-	}
 }
