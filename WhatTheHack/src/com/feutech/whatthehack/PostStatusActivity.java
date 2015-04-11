@@ -3,6 +3,7 @@ package com.feutech.whatthehack;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -81,6 +82,7 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 		try {
 			List<Address> addresses = geoCoder.getFromLocation(latitude, longitude, 1);
 
+			Log.d(TAG, "Addresses: " + addresses.toString());
 			if (addresses.size() > 0) {
                 for (int index = 0; index < addresses.get(0).getMaxAddressLineIndex(); index++)
                     filterAddress += addresses.get(0).getAddressLine(index) + " ";
