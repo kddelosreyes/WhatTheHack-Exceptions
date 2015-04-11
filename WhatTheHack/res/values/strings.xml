@@ -7,11 +7,11 @@
     <string name="signup">Sign Up for touristagram</string>
     <string name="needhelp">Need help?</string>
     <string name="hint_username">Username</string>
-
     <string name="hello_world">Hello world!</string>
     <string name="hint_password">Password</string>
     <string name="title_activity_sign_up">Sign Up</string>
     <string name="confirm">Verify Password</string>
     <string name="title_activity_places">Places</string>
+    <string name="title_activity_post_status">Post Status</string>
 
 </resources>

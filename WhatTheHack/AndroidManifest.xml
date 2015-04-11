@@ -8,11 +8,11 @@
         android:minSdkVersion="14"
         android:targetSdkVersion="19" />
 
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
-        android:name="com.feutech.whatthehack.AppController"
+        android:name=".AppController"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -23,13 +23,14 @@
             android:theme="@android:style/Theme.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".LoginActivity"
-            android:theme="@android:style/Theme.NoTitleBar"
-            android:label="@string/app_name" >
+            android:label="@string/app_name"
+            android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
         <activity
             android:name=".SignUpActivity"
@@ -38,6 +39,10 @@
         <activity
             android:name=".PlacesActivity"
             android:label="@string/title_activity_places" >
+        </activity>
+        <activity
+            android:name=".PostStatusActivity"
+            android:label="@string/title_activity_post_status" >
         </activity>
     </application>
 
