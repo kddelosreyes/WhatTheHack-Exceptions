@@ -2,7 +2,7 @@ package com.feutech.whatthehack;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
@@ -23,11 +23,14 @@ public class PlacesActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_places);
 		
-		//for testing only
+		
 		ArrayList<Place> places = new ArrayList<Place>();
+		
+		//START for testing only
 		places.add(new Place("Manila"));
 		places.add(new Place("Makati"));
 		places.add(new Place("Quezon City"));
+		//END for testing only
 		
 		PlacesAdapter placesAdapter = new PlacesAdapter(this, places);
 		placesListView = (ListView) findViewById(R.id.places_listView);
@@ -70,11 +73,15 @@ class PlacesAdapter extends ArrayAdapter<Place> {
 		this.places = objects;	
 		this.context = context;
 	}
+	@SuppressLint("ViewHolder")
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 		LayoutInflater inflater = context.getLayoutInflater();
 		convertView = inflater.inflate(R.layout.list_item_places, null);
+		
+		//This is once we get the background from the web
 		//convertView.setBackground(background);
+		
 		TextView placeName = (TextView) convertView.findViewById(R.id.places_name_tv);
 		placeName.setText(places.get(position).name);		
 		
