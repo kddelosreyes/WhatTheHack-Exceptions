@@ -4,7 +4,7 @@
     <string name="app_name">turistagram</string>
     <string name="action_settings">Settings</string>
     <string name="login">LOG IN</string>
-    <string name="signup">Sign Up for touristagram</string>
+    <string name="signup">Sign Up for turistagram</string>
     <string name="needhelp">Need help?</string>
     <string name="hint_username">Username</string>
     <string name="hello_world">Hello world!</string>
