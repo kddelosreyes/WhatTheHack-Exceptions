@@ -109,6 +109,8 @@
             android:layout_marginTop="12dp"
             android:textColor="@color/bronze"
             android:background="@drawable/button_selector"
+            android:padding="12dp"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="@string/login" />
         
     </LinearLayout>
@@ -121,7 +123,8 @@
         android:layout_above="@+id/needHelpButton"
         android:onClick="onClick"
         android:background="@android:color/transparent" 
-        android:text="@string/signup" />
+        android:text="@string/signup"
+        android:layout_marginBottom="8dp" />
 
     <Button
         android:id="@+id/needHelpButton"

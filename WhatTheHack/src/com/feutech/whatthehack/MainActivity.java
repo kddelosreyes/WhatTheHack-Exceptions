@@ -7,6 +7,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,40 +17,43 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class MainActivity extends Activity implements OnClickListener, LoginListener {
-	
+public class MainActivity extends Activity implements OnClickListener,
+		LoginListener {
+
 	private EditText usernameEditText;
 	private EditText passwordEditText;
-	
+	private ProgressDialog progressDialog;
+
 	private static final String EMPTY = "";
 	private static final String WARNING_MESSAGE = "Username and/or password empty!";
 	private static final String DOES_NOT_EXIST = "User does not exists.";
-	
+
 	private static final int SHOW_ERROR_DIALOG = 1;
 	private static final int SHOW_LOGIN_ERROR = 2;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		initComponents();
 	}
-	
+
 	private void initComponents() {
 		usernameEditText = (EditText) findViewById(R.id.usernameEditText);
 		passwordEditText = (EditText) findViewById(R.id.passwordEditText);
 	}
-	
+
 	private boolean isEmpty(View view) {
 		String viewValue = ((EditText) view).getText().toString();
-		if(viewValue.equals(EMPTY)) return true;
+		if (viewValue.equals(EMPTY))
+			return true;
 		return false;
 	}
-	
+
 	@SuppressLint("InflateParams")
 	@Override
 	protected Dialog onCreateDialog(int id) {
@@ -70,7 +74,7 @@ public class MainActivity extends Activity implements OnClickListener, LoginList
 
 		return dialogDetails;
 	}
-	
+
 	@Override
 	protected void onPrepareDialog(int id, Dialog dialog) {
 		final AlertDialog alertDialog = (AlertDialog) dialog;
@@ -85,18 +89,23 @@ public class MainActivity extends Activity implements OnClickListener, LoginList
 			break;
 		}
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onClick(View v) {
-		switch(v.getId()) {
+		switch (v.getId()) {
 		case R.id.loginButton:
-			if(isEmpty(usernameEditText) || isEmpty(passwordEditText)) {
+			if (isEmpty(usernameEditText) || isEmpty(passwordEditText)) {
 				showDialog(SHOW_ERROR_DIALOG);
 			} else {
 				String username = usernameEditText.getText().toString();
 				String password = passwordEditText.getText().toString();
-				
+
+				progressDialog = new ProgressDialog(this);
+				progressDialog.setMessage("Logging in...");
+				progressDialog.setCancelable(false);
+				progressDialog.show();
+
 				MobileApi.loginUser(username, password, this);
 			}
 			break;
@@ -111,7 +120,10 @@ public class MainActivity extends Activity implements OnClickListener, LoginList
 
 	@Override
 	public void loginResult(boolean success, String text) {
-		if(success) {
+		if (progressDialog.isShowing())
+			progressDialog.dismiss();
+
+		if (success) {
 			Intent intent = new Intent(MainActivity.this, PlacesActivity.class);
 			startActivity(intent);
 		} else {

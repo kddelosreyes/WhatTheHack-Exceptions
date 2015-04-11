@@ -54,10 +54,10 @@ public class MobileApi {
 								JSONObject responseObject = new JSONObject(response);
 								
 								if (responseObject.getString("success").equals("1")) {
-									String firstName = responseObject.getString(Constants.API_USER_FNAME);
-									String lastName = responseObject.getString(Constants.API_USER_LNAME);
-									String username = responseObject.getString(Constants.API_USER_USERNAME);
-									String password = responseObject.getString(Constants.API_USER_PASSWORD);
+									String firstName = responseObject.getString(Constants.API_LOGIN_RESPONSE_FIRST_NAME);
+									String lastName = responseObject.getString(Constants.API_LOGIN_RESPONSE_LAST_NAME);
+									String username = responseObject.getString(Constants.API_LOGIN_RESPONSE_USERNAME);
+									String password = responseObject.getString(Constants.API_LOGIN_RESPONSE_PASSWORD);
 									
 									UserSingleton.getInstance().setObject(
 											new User(username, password, lastName,
@@ -102,8 +102,8 @@ public class MobileApi {
 		}
 	}
 	
-	public static void registerUser(HashMap<String, String> data) {
-		Thread t = new Thread(new ThreadRegisterUser(data));
+	public static void registerUser(HashMap<String, String> data, RegisterListener listener) {
+		Thread t = new Thread(new ThreadRegisterUser(data, listener));
 		t.run();
 	}
 	
@@ -113,8 +113,9 @@ public class MobileApi {
 		
 		private RegisterListener listener;
 		
-		public ThreadRegisterUser(HashMap<String, String> data) {
+		public ThreadRegisterUser(HashMap<String, String> data, RegisterListener listener) {
 			this.data = data;
+			this.listener = listener;
 		}
 		
 		@Override

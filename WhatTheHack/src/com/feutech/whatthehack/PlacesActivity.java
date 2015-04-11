@@ -33,8 +33,6 @@ public class PlacesActivity extends Activity {
 		
 		places = new ArrayList<Place>();
 		
-		
-		
 		//START for testing only
 		places.add(new Place("Manila"));
 		places.add(new Place("Makati"));
@@ -48,9 +46,7 @@ public class PlacesActivity extends Activity {
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				// TODO Auto-generated method stub
 				Toast.makeText(PlacesActivity.this.getApplicationContext(), PlacesActivity.this.places.get(position).name, Toast.LENGTH_SHORT).show();
-				
 			}
 		});
 		
@@ -73,6 +69,11 @@ public class PlacesActivity extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
+	public void onBackPressed() {
+		return;
 	}
 }
 
@@ -105,6 +106,4 @@ class PlacesAdapter extends ArrayAdapter<Place> {
 		
 		return convertView;
 	}
-	
-	
 }
