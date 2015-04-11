@@ -55,6 +55,7 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 
 		Bitmap photo = getBitmap(photoPath);
 
+		//set photo to screen
 		if (photo != null) {
 			photoIV.setImageBitmap(RotateBitmap(photo, 90));
 		} else {
@@ -86,10 +87,11 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 			
 			
 		} catch (IOException ex) {
+			Log.d(TAG, ex.getMessage());
 			ex.printStackTrace();
 		} catch (Exception e2) {
 			// TODO: handle exception
-
+			Log.d(TAG, e2.getMessage());
 			e2.printStackTrace();
 		}
 		return filterAddress;
@@ -192,6 +194,8 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 					+ o.outHeight);
 
 			Bitmap b = null;
+			
+			in = new FileInputStream(path);
 
 			if (scale > 1) {
 				scale--;
