@@ -5,8 +5,11 @@ import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,7 +45,14 @@ public class PlacesActivity extends Activity {
 
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
+		
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		String username = sharedPreferences.getString("_username", "");
+		String password = sharedPreferences.getString("_password", "");
+		boolean hasLogged = sharedPreferences.getBoolean("_hasLogged", false);
+		Toast.makeText(getApplicationContext(), username + " " + password + " " + hasLogged, Toast.LENGTH_SHORT).show();
+		
 		places = new ArrayList<Place>();
 
 		// START for testing only
@@ -81,6 +91,9 @@ public class PlacesActivity extends Activity {
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_logout) {
+			Intent intent = new Intent(PlacesActivity.this, LoginActivity.class);
+			startActivity(intent);
+			finish();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -92,11 +105,10 @@ public class PlacesActivity extends Activity {
             mExitHandler.removeCallbacks(mExitRunnable);
             mExitHandler = null;
             super.onBackPressed();
-        }
-        else
-        {
+            finish();
+        } else {
             mRecentlyBackPressed = true;
-            Toast.makeText(this, "Press again to exit", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Press again to exit.", Toast.LENGTH_SHORT).show();
             mExitHandler.postDelayed(mExitRunnable, delay);
         }
     }

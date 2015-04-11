@@ -2,8 +2,10 @@ package com.feutech.whatthehack;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.WindowManager;
 
 public class SplashActivity extends Activity {
@@ -27,6 +29,10 @@ public class SplashActivity extends Activity {
 	}
 	
 	private void fetchData() {
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		boolean hasLogged = sharedPreferences.getBoolean("_hasLogged", false);
+		
+		
 		startActivity(new Intent(SplashActivity.this, LoginActivity.class));
 		finish();
 	}
