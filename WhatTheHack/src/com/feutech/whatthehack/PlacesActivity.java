@@ -10,7 +10,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -32,6 +31,7 @@ import com.feutech.whatthehack.api.MobileApi;
 import com.feutech.whatthehack.database.PlaceHelper;
 import com.feutech.whatthehack.listeners.GetPlacesListener;
 import com.feutech.whatthehack.model.Place;
+import com.feutech.whatthehack.utilities.ConnectionChecker;
 
 public class PlacesActivity extends Activity implements OnItemClickListener, GetPlacesListener{
 
@@ -71,12 +71,22 @@ public class PlacesActivity extends Activity implements OnItemClickListener, Get
 		
 		places.add(new Place("What's near me?", null));
 		
-		MobileApi.getPlaces(this, this);
+		if (ConnectionChecker.isNetworkAvailable(this))
+			MobileApi.getPlaces(this, this);
+		else {
+			places.addAll(getPlacesFromDB());
+			adapter = new ListViewPlacesAdapter(this, places);
+			placesListView.setAdapter(adapter);
+		}
+			
 	}
 	
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-		startActivity(new Intent(this, LandingFragmentActivity.class));
+		Intent intent = new Intent(this, LandingFragmentActivity.class);
+		Place place = (Place) arg0.getAdapter().getItem(position);
+		intent.putExtra(LandingFragmentActivity.PLACE_NAME, place.getPlace_name());
+		startActivity(intent);
 	}
 
 	private ArrayList<Place> getPlacesFromDB() {
@@ -99,7 +109,6 @@ public class PlacesActivity extends Activity implements OnItemClickListener, Get
 			places.addAll(getPlacesFromDB());
 			adapter = new ListViewPlacesAdapter(this, places);
 			placesListView.setAdapter(adapter);
-			
 		} else {
 			//DISPLAY ERROR MESSAGE
 		}
@@ -198,8 +207,7 @@ public class PlacesActivity extends Activity implements OnItemClickListener, Get
 	        Bitmap imageBitmap = (Bitmap) extras.get("data");
 	        
 	        */
-	        
-	        
+
 	        String filePhotoPath = photoFile.getAbsolutePath();
 	        Intent i = new Intent(PlacesActivity.this, PostStatusActivity.class);
 	        i.putExtra(PostStatusActivity.PostStatusActivity_PhotoPath, filePhotoPath);
