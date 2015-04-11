@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#fff"
+    android:padding="@dimen/activity_horizontal_margin" >
+
+    <Preference android:key="_username" >
+    </Preference>
+    <Preference android:key="_password" >
+    </Preference>
+    <Preference android:key="_hasLogged" >
+    </Preference>
+
+</PreferenceScreen>

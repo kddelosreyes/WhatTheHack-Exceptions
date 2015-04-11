@@ -9,7 +9,10 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -124,8 +127,20 @@ public class LoginActivity extends Activity implements OnClickListener,
 			progressDialog.dismiss();
 
 		if (success) {
+			String username = usernameEditText.getText().toString();
+			String password = passwordEditText.getText().toString();
+			
+			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+			SharedPreferences.Editor editor = sharedPreferences.edit();
+			editor.putString("_username", username);
+			editor.putString("_password", password);
+			editor.putBoolean("_hasLogged", true);
+			editor.commit();
+			
+			passwordEditText.setText("");
 			Intent intent = new Intent(LoginActivity.this, PlacesActivity.class);
 			startActivity(intent);
+			finish();
 		} else {
 			showDialog(SHOW_LOGIN_ERROR);
 		}

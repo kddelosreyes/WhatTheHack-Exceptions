@@ -8,6 +8,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+<<<<<<< HEAD
+=======
+import android.view.LayoutInflater;
+>>>>>>> refs/remotes/origin/master
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,6 +50,25 @@ public class PlacesActivity extends Activity implements OnItemClickListener{
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
+<<<<<<< HEAD
+=======
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		String username = sharedPreferences.getString("_username", "");
+		String password = sharedPreferences.getString("_password", "");
+		boolean hasLogged = sharedPreferences.getBoolean("_hasLogged", false);
+		Toast.makeText(getApplicationContext(), username + " " + password + " " + hasLogged, Toast.LENGTH_SHORT).show();
+		
+		places = new ArrayList<Place>();
+
+		// START for testing only
+		places.add(new Place("Manila"));
+		places.add(new Place("Makati"));
+		places.add(new Place("Quezon City"));
+		// END for testing only
+
+		PlacesAdapter placesAdapter = new PlacesAdapter(this, places);
+>>>>>>> refs/remotes/origin/master
 		placesListView = (ListView) findViewById(R.id.places_listView);
 		
 		places = getPlacesFromDB();
@@ -86,6 +109,7 @@ public class PlacesActivity extends Activity implements OnItemClickListener{
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
 		if (id == R.id.action_logout) {
+<<<<<<< HEAD
 			SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 			SharedPreferences.Editor editor = sharedPreferences.edit();
 			
@@ -97,6 +121,11 @@ public class PlacesActivity extends Activity implements OnItemClickListener{
 			startActivity(new Intent(PlacesActivity.this, LoginActivity.class));
 			finish();
 			
+=======
+			Intent intent = new Intent(PlacesActivity.this, LoginActivity.class);
+			startActivity(intent);
+			finish();
+>>>>>>> refs/remotes/origin/master
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -108,11 +137,10 @@ public class PlacesActivity extends Activity implements OnItemClickListener{
             mExitHandler.removeCallbacks(mExitRunnable);
             mExitHandler = null;
             super.onBackPressed();
-        }
-        else
-        {
+            finish();
+        } else {
             mRecentlyBackPressed = true;
-            Toast.makeText(this, "Press again to exit", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Press again to exit.", Toast.LENGTH_SHORT).show();
             mExitHandler.postDelayed(mExitRunnable, delay);
         }
     }
