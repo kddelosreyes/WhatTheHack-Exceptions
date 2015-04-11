@@ -1,8 +1,5 @@
 package com.feutech.whatthehack;
 
-import com.feutech.whatthehack.api.MobileApi;
-import com.feutech.whatthehack.listeners.LoginListener;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -17,7 +14,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.feutech.whatthehack.api.MobileApi;
+import com.feutech.whatthehack.listeners.LoginListener;
+import com.feutech.whatthehack.utilities.ConnectionChecker;
 
 public class SplashActivity extends Activity implements LoginListener {
 
@@ -26,8 +26,10 @@ public class SplashActivity extends Activity implements LoginListener {
 	private SharedPreferences sharedPreferences;
 	
 	private static final int SHOW_LOGIN_ERROR = 2;
+	private static final int SHOW_NO_CONNECTION = 3;
 	
 	private static final String DOES_NOT_EXIST = "User does not exists.";
+	private static final String NO_CONNECTION = "Establish an internet connection first.";
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -47,18 +49,24 @@ public class SplashActivity extends Activity implements LoginListener {
 		}, TIME);
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void fetchData() {
 		boolean hasLogged = sharedPreferences.getBoolean("_hasLogged", false);
 		if(hasLogged) {
-			String username = sharedPreferences.getString("_username", "");
-			String password = sharedPreferences.getString("_password", "");
 			
-			progressDialog = new ProgressDialog(this);
-			progressDialog.setMessage("Logging in...");
-			progressDialog.setCancelable(false);
-			progressDialog.show();
-
-			MobileApi.loginUser(username, password, this);
+			if (ConnectionChecker.isNetworkAvailable(this)) {
+				String username = sharedPreferences.getString("_username", "");
+				String password = sharedPreferences.getString("_password", "");
+				
+				progressDialog = new ProgressDialog(this);
+				progressDialog.setMessage("Logging in...");
+				progressDialog.setCancelable(false);
+				progressDialog.show();
+	
+				MobileApi.loginUser(username, password, this);
+			} else {
+				showDialog(SHOW_NO_CONNECTION);
+			}
 		} else {
 			startActivity(new Intent(SplashActivity.this, LoginActivity.class));
 			finish();
@@ -74,6 +82,7 @@ public class SplashActivity extends Activity implements LoginListener {
 
 		switch (id) {
 		case SHOW_LOGIN_ERROR:
+		case SHOW_NO_CONNECTION:
 			dialogview = inflater.inflate(R.layout.alert_dialog_warning, null);
 			break;
 		}
@@ -95,9 +104,13 @@ public class SplashActivity extends Activity implements LoginListener {
 		case SHOW_LOGIN_ERROR:
 			textView.setText(DOES_NOT_EXIST);
 			break;
+		case SHOW_NO_CONNECTION:
+			textView.setText(NO_CONNECTION);
+			break;
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void loginResult(boolean success, String text) {
 		if (progressDialog.isShowing())

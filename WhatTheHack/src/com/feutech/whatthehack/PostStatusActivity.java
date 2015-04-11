@@ -3,7 +3,6 @@ package com.feutech.whatthehack;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -22,6 +21,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.feutech.whatthehack.api.MobileApi;
+import com.feutech.whatthehack.listeners.GetAddressListener;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -29,12 +30,12 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.location.LocationServices;
 
 public class PostStatusActivity extends Activity implements ConnectionCallbacks,
-		OnConnectionFailedListener {
+		OnConnectionFailedListener, GetAddressListener {
 
 	// comment
 	private ImageView photoIV;
 	private TextView locationTV;
-	GoogleApiClient mGoogleApiClient;
+	private GoogleApiClient mGoogleApiClient;
 	protected Location mLastLocation;
 	private Object mContentResolver;
 	
@@ -66,14 +67,6 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 		
 		//get location long lat:
 		buildGoogleApiClient();
-		
-		//resolve location to address:
-		String address = resolveAddress(this.latitude, this.longitude);
-		Toast.makeText(getApplicationContext(), "Resolved address: " + address, Toast.LENGTH_SHORT).show();
-		if (!address.isEmpty())
-		{
-			locationTV.setText(address);
-		}
 	}
 	
 	public String resolveAddress(double latitude, double longitude) {
@@ -163,6 +156,7 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 			this.longitude = mLastLocation.getLongitude();
 			this.locationFound = true;
 			
+			MobileApi.getFormattedAddress(longitude, latitude, this);
 		} else {
 			Toast.makeText(this, "No location located", Toast.LENGTH_LONG).show();
 			this.locationFound = false;
@@ -233,5 +227,10 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 			Log.e(TAG, e.getMessage(), e);
 			return null;
 		}
+	}
+
+	@Override
+	public void getAddressResult(String address) {
+		locationTV.setText(address);
 	}
 }

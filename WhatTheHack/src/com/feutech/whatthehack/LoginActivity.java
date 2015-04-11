@@ -1,8 +1,5 @@
 package com.feutech.whatthehack;
 
-import com.feutech.whatthehack.api.MobileApi;
-import com.feutech.whatthehack.listeners.LoginListener;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -11,14 +8,17 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.feutech.whatthehack.api.MobileApi;
+import com.feutech.whatthehack.listeners.LoginListener;
+import com.feutech.whatthehack.utilities.ConnectionChecker;
 
 public class LoginActivity extends Activity implements OnClickListener,
 		LoginListener {
@@ -101,15 +101,20 @@ public class LoginActivity extends Activity implements OnClickListener,
 			if (isEmpty(usernameEditText) || isEmpty(passwordEditText)) {
 				showDialog(SHOW_ERROR_DIALOG);
 			} else {
-				String username = usernameEditText.getText().toString();
-				String password = passwordEditText.getText().toString();
-
-				progressDialog = new ProgressDialog(this);
-				progressDialog.setMessage("Logging in...");
-				progressDialog.setCancelable(false);
-				progressDialog.show();
-
-				MobileApi.loginUser(username, password, this);
+				
+				if (ConnectionChecker.isNetworkAvailable(this)) {
+					String username = usernameEditText.getText().toString();
+					String password = passwordEditText.getText().toString();
+	
+					progressDialog = new ProgressDialog(this);
+					progressDialog.setMessage("Logging in...");
+					progressDialog.setCancelable(false);
+					progressDialog.show();
+	
+					MobileApi.loginUser(username, password, this);
+				} else {
+					showDialog(SHOW_LOGIN_ERROR);
+				}
 			}
 			break;
 		case R.id.registerButton:
@@ -122,6 +127,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void loginResult(boolean success, String text) {
 		if (progressDialog.isShowing())

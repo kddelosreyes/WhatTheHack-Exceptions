@@ -18,7 +18,9 @@ import com.android.volley.toolbox.StringRequest;
 import com.feutech.whatthehack.AppController;
 import com.feutech.whatthehack.constants.Constants;
 import com.feutech.whatthehack.database.PlaceHelper;
+import com.feutech.whatthehack.listeners.GetAddressListener;
 import com.feutech.whatthehack.listeners.GetPlacesListener;
+import com.feutech.whatthehack.listeners.GetPostListener;
 import com.feutech.whatthehack.listeners.LoginListener;
 import com.feutech.whatthehack.listeners.RegisterListener;
 import com.feutech.whatthehack.model.Place;
@@ -234,5 +236,125 @@ public class MobileApi {
 			
 			AppController.getInstance().addToRequestQueue(toPost);
 		}
+	}
+	
+	public static void getPosts(GetPostListener listener) {
+		Thread t = new Thread(new ThreadGetPosts(listener));
+		t.run();
+	}
+	
+	private static class ThreadGetPosts implements Runnable {
+
+		private GetPostListener listener;
+		
+		public ThreadGetPosts(GetPostListener listener) {
+			this.listener = listener;
+		}
+		
+		@Override
+		public void run() {
+			StringRequest toPost = new StringRequest(Method.POST, Constants.BASE_URL,  
+					new Response.Listener<String>() {
+
+						@Override
+						public void onResponse(String response) {
+							Log.i("TAG", "response in getting posts: " + response);
+				
+							try {
+								JSONObject responseObject = new JSONObject(response);
+							} catch (JSONException e) {
+								e.printStackTrace();
+								listener.getPostResult(false, e.getMessage());
+							}
+						}
+					},
+					
+					new Response.ErrorListener() {
+
+						@Override
+						public void onErrorResponse(VolleyError err) {
+							err.printStackTrace();
+							listener.getPostResult(false, err.getMessage());
+						}
+					})
+			{
+				@Override
+				protected Map<String, String> getParams()
+						throws AuthFailureError {
+					HashMap<String, String> data = new HashMap<String, String>();
+					
+					data.put("tag", Constants.TAG_GET_POSTS);
+					
+					return data;
+				}
+			};
+			
+			AppController.getInstance().addToRequestQueue(toPost);
+		}
+	}
+	
+	public static void getFormattedAddress(double lon, double lat, GetAddressListener listener) {
+		Thread t = new Thread(new ThreadGetFormattedAddress(lon, lat, listener));
+		t.run();
+	}
+	
+	private static class ThreadGetFormattedAddress implements Runnable {
+
+		private double lon, lat;
+		private GetAddressListener listener;
+		
+		public ThreadGetFormattedAddress(double lon, double lat, GetAddressListener listener) {
+			this.lon = lon;
+			this.lat = lat;
+			this.listener = listener;
+		}
+		
+		@Override
+		public void run() {
+			StringRequest toPost = new StringRequest(Method.POST, Constants.BASE_URL, 
+					new Response.Listener<String>() {
+
+						@Override
+						public void onResponse(String response) {
+							
+							Log.i("TAG", "response in address: " + response);
+							
+							try {
+								JSONObject jsonResponse = new JSONObject(response);
+								
+								listener.getAddressResult(jsonResponse.getString("address"));
+							} catch (JSONException e) {
+								e.printStackTrace();
+								listener.getAddressResult("");
+							}
+						}
+					},
+					new Response.ErrorListener() {
+
+						@Override
+						public void onErrorResponse(VolleyError err) {
+							err.printStackTrace();
+							listener.getAddressResult("");
+						}
+					})
+			{
+				@Override
+				protected Map<String, String> getParams()
+						throws AuthFailureError {
+					HashMap<String, String> data = new HashMap<String, String>();
+
+					Log.i("TAG", "lon: " + lon + " lat: " + lat);
+					
+					data.put("lon", String.valueOf(lon));
+					data.put("lat", String.valueOf(lat));
+					data.put("tag", "address");
+					
+					return data;
+				}
+			};
+			
+			AppController.getInstance().addToRequestQueue(toPost);
+		}
+		
 	}
 }

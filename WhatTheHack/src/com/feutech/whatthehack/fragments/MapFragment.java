@@ -71,6 +71,7 @@ public class MapFragment extends Fragment{
             // create marker
             MarkerOptions marker = new MarkerOptions().position(new LatLng(latitude, longitude)).title("Im here");
             map.addMarker(marker);
-		}
+		} else
+			Toast.makeText(getActivity(), "Cannot get location", Toast.LENGTH_SHORT).show();
 	}
 }
