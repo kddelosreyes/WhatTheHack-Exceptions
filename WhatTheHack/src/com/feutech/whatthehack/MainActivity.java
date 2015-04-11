@@ -1,12 +1,16 @@
 package com.feutech.whatthehack;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Toast;
 
-public class MainActivity extends Activity {
-
+public class MainActivity extends Activity implements OnClickListener {
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -30,5 +34,19 @@ public class MainActivity extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	@Override
+	public void onClick(View v) {
+		switch(v.getId()) {
+		case R.id.loginButton:
+			break;
+		case R.id.registerButton:
+			Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
+			startActivity(intent);
+			break;
+		case R.id.needHelpButton:
+			break;
+		}
 	}
 }
