@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">touristagram</string>
+    <string name="app_name">turistagram</string>
     <string name="action_settings">Settings</string>
     <string name="login">LOG IN</string>
     <string name="signup">Sign Up for touristagram</string>
@@ -9,7 +9,7 @@
     <string name="hint_username">Username</string>
     <string name="hello_world">Hello world!</string>
     <string name="hint_password">Password</string>
-    <string name="title_activity_sign_up">Sign Up</string>
+    <string name="title_activity_sign_up">TuristaGramSign Up</string>
     <string name="confirm">Verify Password</string>
     <string name="title_activity_places">Places</string>
     <string name="title_activity_post_status">Post Status</string>
