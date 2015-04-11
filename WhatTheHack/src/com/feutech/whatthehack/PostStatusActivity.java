@@ -7,6 +7,7 @@ import android.view.MenuItem;
 
 public class PostStatusActivity extends Activity {
 
+	public static final String PostStatusActivity_PhotoPath = "com.feutech.whatthehack.PostStatusActivity.PhotoPath";
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
