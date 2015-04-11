@@ -17,7 +17,7 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class MainActivity extends Activity implements OnClickListener,
+public class LoginActivity extends Activity implements OnClickListener,
 		LoginListener {
 
 	private EditText usernameEditText;
@@ -110,7 +110,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			}
 			break;
 		case R.id.registerButton:
-			Intent intent = new Intent(MainActivity.this, SignUpActivity.class);
+			Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
 			startActivity(intent);
 			break;
 		case R.id.needHelpButton:
@@ -124,7 +124,7 @@ public class MainActivity extends Activity implements OnClickListener,
 			progressDialog.dismiss();
 
 		if (success) {
-			Intent intent = new Intent(MainActivity.this, PlacesActivity.class);
+			Intent intent = new Intent(LoginActivity.this, PlacesActivity.class);
 			startActivity(intent);
 		} else {
 			showDialog(SHOW_LOGIN_ERROR);

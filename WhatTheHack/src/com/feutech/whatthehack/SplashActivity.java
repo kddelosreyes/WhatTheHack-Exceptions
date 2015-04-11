@@ -27,7 +27,7 @@ public class SplashActivity extends Activity {
 	}
 	
 	private void fetchData() {
-		startActivity(new Intent(SplashActivity.this, MainActivity.class));
+		startActivity(new Intent(SplashActivity.this, LoginActivity.class));
 		finish();
 	}
 }
