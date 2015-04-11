@@ -1,9 +1,10 @@
 package com.feutech.whatthehack;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -15,9 +16,13 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,9 +39,13 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 	// comment
 	private ImageView photoIV;
 	private TextView locationTV;
+	private Button postBtn;
+	private EditText postET;
+	
 	GoogleApiClient mGoogleApiClient;
 	protected Location mLastLocation;
-	private Object mContentResolver;
+	
+	private Bitmap photo;
 	
 	private double longitude, latitude;
 	private boolean locationFound = false;
@@ -51,10 +60,12 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 
 		photoIV = (ImageView) findViewById(R.id.PostActivity_imageIV);
 		locationTV = (TextView) findViewById(R.id.PostStatus_location_TextView);
+		postBtn = (Button) findViewById(R.id.PostStatus_post_Button);
+		postET = (EditText) findViewById(R.id.PostStatus_post_EditText);
 		
 		String photoPath = getIntent().getStringExtra(PostStatusActivity_PhotoPath).trim();
 
-		Bitmap photo = getBitmap(photoPath);
+		photo = getBitmap(photoPath);
 
 		//set photo to screen
 		if (photo != null) {
@@ -63,6 +74,8 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 			Log.d(TAG, "photo is null");
 			Log.d(TAG, "file path is : " + getIntent().getStringExtra(PostStatusActivity_PhotoPath));
 		}
+		
+		
 		
 		//get location long lat:
 		buildGoogleApiClient();
@@ -76,6 +89,17 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 		}
 	}
 	
+	public void postToWeb(View v) {
+		HashMap<String, String> data = new HashMap<String, String>();
+		data.put("text", this.postET.getText().toString());
+		data.put("longitude", String.valueOf(this.longitude));
+		data.put("latitude", String.valueOf(this.latitude));
+		data.put("picture", encodeTobase64(photo));
+		data.put("tag", "post");
+	}
+	
+	//doesn't always work...
+	//ask abad to do it on the web side.
 	public String resolveAddress(double latitude, double longitude) {
 		String filterAddress = "";
 		Geocoder geoCoder = new Geocoder(getBaseContext(), Locale.getDefault());
@@ -98,6 +122,18 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 			e2.printStackTrace();
 		}
 		return filterAddress;
+	}
+	
+	public String encodeTobase64(Bitmap image)
+	{
+	    Bitmap immagex=image;
+	    ByteArrayOutputStream baos = new ByteArrayOutputStream();  
+	    immagex.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+	    byte[] b = baos.toByteArray();
+	    String imageEncoded = Base64.encodeToString(b,Base64.DEFAULT);
+
+	    Log.e("LOOK", imageEncoded);
+	    return imageEncoded;
 	}
 
 	public static Bitmap RotateBitmap(Bitmap source, float angle) {
