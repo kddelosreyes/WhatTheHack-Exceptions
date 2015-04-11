@@ -1,9 +1,10 @@
 package com.feutech.whatthehack;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -46,6 +47,7 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 	protected Location mLastLocation;
 	
 	private Bitmap photo;
+	private Bitmap reducedPhoto;
 	
 	private double longitude, latitude;
 	private boolean locationFound = false;
@@ -65,7 +67,15 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 		
 		String photoPath = getIntent().getStringExtra(PostStatusActivity_PhotoPath).trim();
 
-		photo = getBitmap(photoPath);
+		
+		BitmapFactory.Options o = new BitmapFactory.Options();
+		o.inJustDecodeBounds = true;
+		BitmapFactory.decodeFile(photoPath, o);
+		int height = o.outHeight;
+		int width = o.outWidth;
+		
+		photo = decodeFile(new File(photoPath));
+		
 
 		//set photo to screen
 		if (photo != null) {
@@ -130,6 +140,7 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 	    ByteArrayOutputStream baos = new ByteArrayOutputStream();  
 	    immagex.compress(Bitmap.CompressFormat.JPEG, 100, baos);
 	    byte[] b = baos.toByteArray();
+	    Log.d(TAG, "size of byte array: " + b.length);
 	    String imageEncoded = Base64.encodeToString(b,Base64.DEFAULT);
 
 	    Log.e("LOOK", imageEncoded);
@@ -212,62 +223,30 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 		mGoogleApiClient.connect();
 
 	}
+	
+	private Bitmap decodeFile(File f){
+	    try {
+	        //Decode image size
+	        BitmapFactory.Options o = new BitmapFactory.Options();
+	        o.inJustDecodeBounds = true;
+	        BitmapFactory.decodeStream(new FileInputStream(f),null,o);
 
-	private Bitmap getBitmap(String path) {
-		InputStream in = null;
-		try {
-			final int IMAGE_MAX_SIZE = 1200000; // 1.2MP
-			in = new FileInputStream(path);
+	        //The new size we want to scale to
+	        final int REQUIRED_SIZE=400;
 
-			// Decode image size
-			BitmapFactory.Options o = new BitmapFactory.Options();
-			o.inJustDecodeBounds = true;
-			BitmapFactory.decodeStream(in, null, o);
-			in.close();
+	        //Find the correct scale value. It should be the power of 2.
+	        int scale=1;
+	        while(o.outWidth/scale/2>=REQUIRED_SIZE && o.outHeight/scale/2>=REQUIRED_SIZE)
+	            scale*=2;
 
-			int scale = 1;
-			while ((o.outWidth * o.outHeight) * (1 / Math.pow(scale, 2)) > IMAGE_MAX_SIZE) {
-				scale++;
-			}
-			Log.d(TAG, "scale = " + scale + ", orig-width: " + o.outWidth + ", orig-height: "
-					+ o.outHeight);
-
-			Bitmap b = null;
-			
-			in = new FileInputStream(path);
-
-			if (scale > 1) {
-				scale--;
-				// scale to max possible inSampleSize that still yields an image
-				// larger than target
-				o = new BitmapFactory.Options();
-				o.inSampleSize = scale;
-				b = BitmapFactory.decodeStream(in, null, o);
-
-				// resize to desired dimensions
-				int height = b.getHeight();
-				int width = b.getWidth();
-				Log.d(TAG, "1th scale operation dimenions - width: " + width + ", height: "
-						+ height);
-
-				double y = Math.sqrt(IMAGE_MAX_SIZE / (((double) width) / height));
-				double x = (y / height) * width;
-
-				Bitmap scaledBitmap = Bitmap.createScaledBitmap(b, (int) x, (int) y, true);
-				b.recycle();
-				b = scaledBitmap;
-
-				System.gc();
-			} else {
-				b = BitmapFactory.decodeStream(in);
-			}
-			in.close();
-
-			Log.d(TAG, "bitmap size - width: " + b.getWidth() + ", height: " + b.getHeight());
-			return b;
-		} catch (IOException e) {
-			Log.e(TAG, e.getMessage(), e);
-			return null;
-		}
+	        //Decode with inSampleSize
+	        BitmapFactory.Options o2 = new BitmapFactory.Options();
+	        o2.inSampleSize=scale;
+	        Bitmap b=  BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
+	        Log.d(TAG, "Size of bitmap:  " + b.getByteCount());
+	        Log.d(TAG, "Height: " + b.getHeight() + " width: " + b.getWidth());
+	        return b;
+	    } catch (FileNotFoundException e) {}
+	    return null;
 	}
 }
