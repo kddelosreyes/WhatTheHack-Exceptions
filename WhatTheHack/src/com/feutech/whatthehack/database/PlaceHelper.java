@@ -18,7 +18,7 @@ public class PlaceHelper {
 	
 	protected final static String DROP_TABLE = "DROP TABLE IF EXISTS " + T_NAME;
 	protected final static String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS "+ T_NAME + " (" +
-												PLACE_NAME + " TEXT " + 
+												PLACE_NAME + " TEXT, " + 
 												PLACE_PICTURE + " TEXT )";
 	
 	private Context context;

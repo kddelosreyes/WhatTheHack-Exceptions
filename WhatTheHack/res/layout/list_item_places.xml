@@ -5,15 +5,18 @@
 
     <com.android.volley.toolbox.NetworkImageView
         android:id="@+id/networkImageViewPlace"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scaleType="fitXY" />
     
     <TextView
         android:id="@+id/textViewPlaces"
-        android:layout_width="wrap_content"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="30dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingLeft="30dp"
         android:layout_alignParentBottom="true"
         android:text="Test"
         android:textAppearance="?android:attr/textAppearanceLarge" />

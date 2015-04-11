@@ -3,6 +3,7 @@ package com.feutech.whatthehack;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -18,13 +19,17 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.feutech.whatthehack.adapters.ListViewPlacesAdapter;
+import com.feutech.whatthehack.api.MobileApi;
 import com.feutech.whatthehack.database.PlaceHelper;
+import com.feutech.whatthehack.listeners.GetPlacesListener;
 import com.feutech.whatthehack.model.Place;
 
-public class PlacesActivity extends Activity implements OnItemClickListener{
+public class PlacesActivity extends Activity implements OnItemClickListener, GetPlacesListener{
 
 	private ListView placesListView;
 	private ArrayList<Place> places;
+	
+	private ProgressDialog progressDialog;
 	
 	private ListViewPlacesAdapter adapter;
 	
@@ -49,14 +54,16 @@ public class PlacesActivity extends Activity implements OnItemClickListener{
 		places = new ArrayList<Place>();
 
 		placesListView = (ListView) findViewById(R.id.places_listView);
+		placesListView.setOnItemClickListener(this);
+		
+		progressDialog = new ProgressDialog(this);
+		progressDialog.setMessage("Loading...");
+		progressDialog.setCancelable(false);
+		progressDialog.show();
 		
 		places.add(new Place("What's near me?", null));
-		places.addAll(getPlacesFromDB());
 		
-		adapter = new ListViewPlacesAdapter(this, places);
-		
-		placesListView.setAdapter(adapter);
-		placesListView.setOnItemClickListener(this);
+		MobileApi.getPlaces(this, this);
 	}
 	
 	@Override
@@ -73,6 +80,21 @@ public class PlacesActivity extends Activity implements OnItemClickListener{
 		helper.close();
 		
 		return places;
+	}
+	
+	@Override
+	public void getPlacesResult(boolean success, String text) {
+		if (progressDialog.isShowing())
+			progressDialog.dismiss();
+		
+		if (success) {
+			places.addAll(getPlacesFromDB());
+			adapter = new ListViewPlacesAdapter(this, places);
+			placesListView.setAdapter(adapter);
+			
+		} else {
+			//DISPLAY ERROR MESSAGE
+		}
 	}
 
 	@Override

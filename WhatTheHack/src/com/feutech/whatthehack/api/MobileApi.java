@@ -3,21 +3,25 @@ package com.feutech.whatthehack.api;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.Request.Method;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.Request.Method;
 import com.android.volley.toolbox.StringRequest;
 import com.feutech.whatthehack.AppController;
 import com.feutech.whatthehack.constants.Constants;
-import com.feutech.whatthehack.listeners.GetPostListener;
+import com.feutech.whatthehack.database.PlaceHelper;
+import com.feutech.whatthehack.listeners.GetPlacesListener;
 import com.feutech.whatthehack.listeners.LoginListener;
 import com.feutech.whatthehack.listeners.RegisterListener;
+import com.feutech.whatthehack.model.Place;
 import com.feutech.whatthehack.model.User;
 import com.feutech.whatthehack.utilities.UserSingleton;
 
@@ -150,7 +154,85 @@ public class MobileApi {
 		}
 	}
 	
-	public static void getPosts(GetPostListener listener) {
+	public static void getPlaces(Context context, GetPlacesListener listener) {
+		Thread t = new Thread(new ThreadGetPlaces(context, listener));
+		t.run();
+	}
+	
+	private static class ThreadGetPlaces implements Runnable {
 		
+		private Context context;
+		private GetPlacesListener listener;
+		
+		public ThreadGetPlaces (Context context, GetPlacesListener listener) {
+			this.context = context;
+			this.listener = listener;
+		}
+		
+		@Override
+		public void run() {
+			
+			StringRequest toPost = new StringRequest(Method.POST, Constants.BASE_URL, 
+					new Response.Listener<String>() {
+
+						@Override
+						public void onResponse(String response) {
+							Log.i("TAG", "places response: " + response);
+							try {
+								JSONObject jsonResponse = new JSONObject(response);
+								
+								if (jsonResponse.getInt("success") == 1) {
+									
+									JSONArray array = jsonResponse.getJSONArray("details");
+									
+									PlaceHelper helper = new PlaceHelper(context);
+									helper.open();
+									helper.deleteAll();
+									helper.create();
+									for (int x = 0; x < array.length(); x++) {
+										JSONObject jsonObject = array.getJSONObject(x);
+										
+										String placeName = jsonObject.getString("place_name");
+										String placePhoto = jsonObject.getString("photo");
+										
+										placePhoto = Constants.URL_PREFIX_PHOTO + "places/" + placePhoto.substring(placePhoto.lastIndexOf("/"));
+										
+										helper.insert(new Place(placeName, placePhoto));
+									}
+									
+									helper.close();
+									
+									listener.getPlacesResult(true, "Success");
+								} else
+									listener.getPlacesResult(false, jsonResponse.getString("error_msg"));
+							} catch (JSONException e) {
+								e.printStackTrace();
+								listener.getPlacesResult(false, e.getMessage());
+							}
+						}
+					}, 
+					
+					new Response.ErrorListener() {
+
+						@Override
+						public void onErrorResponse(VolleyError err) {
+							err.printStackTrace();
+							listener.getPlacesResult(false, err.getMessage());
+						}
+					})
+			{
+				@Override
+				protected Map<String, String> getParams()
+						throws AuthFailureError {
+					
+					HashMap<String, String> data = new HashMap<String, String>();
+					data.put("tag", Constants.TAG_PLACE);
+					
+					return data;
+				}
+			};
+			
+			AppController.getInstance().addToRequestQueue(toPost);
+		}
 	}
 }

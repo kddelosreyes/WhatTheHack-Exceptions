@@ -7,6 +7,10 @@ public class Constants {
 	public static final String BASE_URL = "http://feueac.acm.org/turistagram/mobile/";
 	public static final String TAG_LOGIN = "login";
 	public static final String TAG_REGISTER = "registration";
+	public static final String TAG_PLACE = "place";
+	public static final String TAG_BANNER = "banner";
+	
+	public static final String URL_PREFIX_PHOTO = "http://feueac.acm.org/turistagram/";
 	
 	// USER KEYS
 	
