@@ -2,29 +2,33 @@ package com.feutech.whatthehack;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class PlacesActivity extends Activity {
 
 	ListView placesListView;
+	ArrayList<Place> places;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_places);
+		places = new ArrayList<Place>();
 		
 		
-		ArrayList<Place> places = new ArrayList<Place>();
 		
 		//START for testing only
 		places.add(new Place("Manila"));
@@ -35,6 +39,15 @@ public class PlacesActivity extends Activity {
 		PlacesAdapter placesAdapter = new PlacesAdapter(this, places);
 		placesListView = (ListView) findViewById(R.id.places_listView);
 		placesListView.setAdapter(placesAdapter);
+		placesListView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				// TODO Auto-generated method stub
+				Toast.makeText(PlacesActivity.this.getApplicationContext(), PlacesActivity.this.places.get(position).name, Toast.LENGTH_SHORT).show();
+				
+			}
+		});
 		
 	}
 
