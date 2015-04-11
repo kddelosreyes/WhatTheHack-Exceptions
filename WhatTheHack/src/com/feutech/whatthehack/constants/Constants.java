@@ -9,7 +9,8 @@ public class Constants {
 	public static final String TAG_REGISTER = "registration";
 	public static final String TAG_PLACE = "place";
 	public static final String TAG_BANNER = "banner";
-	public static final String TAG_GET_POSTS = "";
+	public static final String TAG_GET_POSTS = "get_post";
+	public static final String TAG_GET_LATLAN = "latlan";
 	
 	public static final String URL_PREFIX_PHOTO = "http://feueac.acm.org/turistagram/";
 	

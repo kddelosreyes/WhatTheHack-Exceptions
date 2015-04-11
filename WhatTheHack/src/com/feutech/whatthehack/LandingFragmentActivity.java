@@ -1,5 +1,6 @@
 package com.feutech.whatthehack;
 
+import GPS.GPSTracker;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,15 +10,17 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
-import android.view.WindowManager;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.feutech.whatthehack.api.MobileApi;
 import com.feutech.whatthehack.fragments.MapPlacesFragment;
 import com.feutech.whatthehack.fragments.PostsListViewFragment;
 import com.feutech.whatthehack.listeners.GetPostListener;
 import com.feutech.whatthehack.utilities.ConnectionChecker;
+import com.google.android.gms.maps.model.LatLng;
 
 public class LandingFragmentActivity extends FragmentActivity implements OnClickListener, GetPostListener{
 
@@ -31,6 +34,13 @@ public class LandingFragmentActivity extends FragmentActivity implements OnClick
 	
 	private ProgressDialog progressDialog;
 	
+	private String placeName;
+	private boolean isWhatsNearToMe;
+	
+	private GPSTracker gps;
+	
+	private double lat, lng;
+	
 	@Override
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
@@ -40,7 +50,9 @@ public class LandingFragmentActivity extends FragmentActivity implements OnClick
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
 		Intent intent = getIntent();
-		String placeName = intent.getStringExtra(PLACE_NAME);
+		placeName = intent.getStringExtra(PLACE_NAME);
+		isWhatsNearToMe = intent.getBooleanExtra("whatsNearToMe", true);
+		
 		getActionBar().setTitle(placeName);
 		
 		fm = getSupportFragmentManager();
@@ -51,39 +63,57 @@ public class LandingFragmentActivity extends FragmentActivity implements OnClick
 		imageViewMap.setOnClickListener(this);
 		imageViewSearch.setOnClickListener(this);
 		
-		viewPager = (ViewPager) findViewById(R.id.pager);
-		viewPager.setAdapter(new SlidePagerAdapter(fm));
+		if (isWhatsNearToMe) {
+			//WHAT'S NEAR TO ME
+			gps = new GPSTracker(this);
+			
+			if (gps.canGetLocation()) {
+				lat = gps.getLatitude();
+				lng = gps.getLongitude();
+			} else {
+				Toast.makeText(this, "Cannot get location", Toast.LENGTH_SHORT).show();
+				lat = 0;
+				lng = 0;
+			}
+			
+		} else {
+			//OTHER PLACES
+			lat = intent.getDoubleExtra("lat", 0);
+			lng = intent.getDoubleExtra("lon", 0);
+		}
+//		viewPager = (ViewPager) findViewById(R.id.pager);
+//		viewPager.setAdapter(new SlidePagerAdapter(fm));
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
 		
-//		if (ConnectionChecker.isNetworkAvailable(this)) {
-//			progressDialog = new ProgressDialog(this);
-//			progressDialog.setMessage("Loading...");
-//			progressDialog.setCancelable(false);
-//			progressDialog.show();
-//			
-//			MobileApi.getPosts(this);
-//		} else {
-//			//DISPLAY NO CONNECTION MESSAGE
-//		}
-		viewPager.setCurrentItem(0);
+		if (ConnectionChecker.isNetworkAvailable(this)) {
+			progressDialog = new ProgressDialog(this);
+			progressDialog.setMessage("Loading...");
+			progressDialog.setCancelable(false);
+			progressDialog.show();
+			
+			MobileApi.getPosts(lat, lng, this);
+		} else {
+			//DISPLAY NO CONNECTION MESSAGE
+		}
 	}
 	
 	@Override
 	public void getPostResult(boolean success, String text) {
 		
-//		if (progressDialog.isShowing())
-//			progressDialog.dismiss();
-//		
-//		if (success) {
-//			viewPager = (ViewPager) findViewById(R.id.pager);
-//			viewPager.setAdapter(new SlidePagerAdapter(fm));
-//		} else {
-//			// DISPLAY ERROR MESSAGE ON TEXT
-//		}
+		if (progressDialog.isShowing())
+			progressDialog.dismiss();
+		
+		if (success) {
+			viewPager = (ViewPager) findViewById(R.id.pager);
+			viewPager.setAdapter(new SlidePagerAdapter(fm));
+			viewPager.setCurrentItem(0);
+		} else {
+			// DISPLAY ERROR MESSAGE ON TEXT
+		}
 	}
 	
 	@Override
@@ -107,7 +137,7 @@ public class LandingFragmentActivity extends FragmentActivity implements OnClick
 		@Override
 		public Fragment getItem(int position) {
 			if (position == 0)
-				return new MapPlacesFragment();
+				return new MapPlacesFragment(new LatLng(lat, lng));
 			else
 				return new PostsListViewFragment();
 		}

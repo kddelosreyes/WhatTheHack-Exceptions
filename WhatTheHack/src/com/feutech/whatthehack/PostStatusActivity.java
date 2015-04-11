@@ -4,18 +4,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Base64;
@@ -31,6 +26,9 @@ import android.widget.Toast;
 
 import com.feutech.whatthehack.api.MobileApi;
 import com.feutech.whatthehack.listeners.GetAddressListener;
+import com.feutech.whatthehack.listeners.PostListener;
+import com.feutech.whatthehack.model.User;
+import com.feutech.whatthehack.utilities.UserSingleton;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -38,7 +36,7 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.location.LocationServices;
 
 public class PostStatusActivity extends Activity implements ConnectionCallbacks,
-		OnConnectionFailedListener, GetAddressListener {
+		OnConnectionFailedListener, GetAddressListener, View.OnClickListener, PostListener {
 
 	// comment
 	private ImageView photoIV;
@@ -48,16 +46,15 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 	
 	private GoogleApiClient mGoogleApiClient;
 	protected Location mLastLocation;
-	private Object mContentResolver;
 	
 	private Bitmap photo;
-	private Bitmap reducedPhoto;
 	
 	private double longitude, latitude;
-	private boolean locationFound = false;
 
 	public static final String TAG = "com.feutech.whatthehack.PostStatusActivity";
 	public static final String PostStatusActivity_PhotoPath = "com.feutech.whatthehack.PostStatusActivity.PhotoPath";
+	
+	private ProgressDialog progressDialog;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -69,14 +66,16 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 		postBtn = (Button) findViewById(R.id.PostStatus_post_Button);
 		postET = (EditText) findViewById(R.id.PostStatus_post_EditText);
 		
+		progressDialog = new ProgressDialog(this);
+		progressDialog.setMessage("Posting...");
+		progressDialog.setCancelable(false);
+		
 		String photoPath = getIntent().getStringExtra(PostStatusActivity_PhotoPath).trim();
 
 		
 		BitmapFactory.Options o = new BitmapFactory.Options();
 		o.inJustDecodeBounds = true;
 		BitmapFactory.decodeFile(photoPath, o);
-		int height = o.outHeight;
-		int width = o.outWidth;
 		
 		photo = decodeFile(new File(photoPath));
 		
@@ -89,45 +88,40 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 			Log.d(TAG, "file path is : " + getIntent().getStringExtra(PostStatusActivity_PhotoPath));
 		}
 		
-		
-		
 		//get location long lat:
 		buildGoogleApiClient();
+		
+		postBtn.setOnClickListener(this);
 	}
 	
-	public void postToWeb(View v) {
+	public void postToWeb() {
+		
+		progressDialog.show();
+		
 		HashMap<String, String> data = new HashMap<String, String>();
-		data.put("text", this.postET.getText().toString());
-		data.put("longitude", String.valueOf(this.longitude));
-		data.put("latitude", String.valueOf(this.latitude));
-		data.put("picture", encodeTobase64(photo));
+		
+		User user = (User) UserSingleton.getInstance().getObject();
+		
+		data.put("username", user.getUsername());
+		data.put("placename", locationTV.getText().toString());
+		data.put("lon", String.valueOf(this.longitude));
+		data.put("lat", String.valueOf(this.latitude));
+		data.put("status", this.postET.getText().toString());
+		data.put("photo", encodeTobase64(photo));
+		data.put("category", "Food");
 		data.put("tag", "post");
+		
+		MobileApi.post(data, this);
 	}
 	
-	//doesn't always work...
-	//ask abad to do it on the web side.
-	public String resolveAddress(double latitude, double longitude) {
-		String filterAddress = "";
-		Geocoder geoCoder = new Geocoder(getBaseContext(), Locale.getDefault());
-		try {
-			List<Address> addresses = geoCoder.getFromLocation(latitude, longitude, 1);
-
-			Log.d(TAG, "Addresses: " + addresses.toString());
-			if (addresses.size() > 0) {
-                for (int index = 0; index < addresses.get(0).getMaxAddressLineIndex(); index++)
-                    filterAddress += addresses.get(0).getAddressLine(index) + " ";
-            }
-			
-			
-		} catch (IOException ex) {
-			Log.d(TAG, ex.getMessage());
-			ex.printStackTrace();
-		} catch (Exception e2) {
-			// TODO: handle exception
-			Log.d(TAG, e2.getMessage());
-			e2.printStackTrace();
-		}
-		return filterAddress;
+	@Override
+	public void postResult(boolean success, String text) {
+		//GO BACK TO PLACES ACTIVITY
+		
+		if (progressDialog.isShowing())
+			progressDialog.dismiss();
+		
+		finish();
 	}
 	
 	public String encodeTobase64(Bitmap image)
@@ -139,7 +133,7 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 	    Log.d(TAG, "size of byte array: " + b.length);
 	    String imageEncoded = Base64.encodeToString(b,Base64.DEFAULT);
 
-	    Log.e("LOOK", imageEncoded);
+//	    Log.e("LOOK", imageEncoded);
 	    return imageEncoded;
 	}
 
@@ -178,6 +172,8 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 	protected void onStart() {
 		super.onStart();
 		mGoogleApiClient.connect();
+		
+		MobileApi.getFormattedAddress(longitude, latitude, this);
 	}
 
 	@Override
@@ -204,13 +200,10 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 							+ mLastLocation.getLatitude(), Toast.LENGTH_SHORT).show();
 			this.latitude = mLastLocation.getLatitude();
 			this.longitude = mLastLocation.getLongitude();
-			this.locationFound = true;
 			
 			MobileApi.getFormattedAddress(longitude, latitude, this);
-		} else {
+		} else
 			Toast.makeText(this, "No location located", Toast.LENGTH_LONG).show();
-			this.locationFound = false;
-		}
 
 	}
 
@@ -250,5 +243,10 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 	@Override
 	public void getAddressResult(String address) {
 		locationTV.setText(address);
+	}
+
+	@Override
+	public void onClick(View v) {
+		postToWeb();
 	}
 }

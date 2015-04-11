@@ -19,6 +19,8 @@ import android.widget.Toast;
 import com.feutech.whatthehack.api.MobileApi;
 import com.feutech.whatthehack.constants.Constants;
 import com.feutech.whatthehack.listeners.RegisterListener;
+import com.feutech.whatthehack.model.User;
+import com.feutech.whatthehack.utilities.UserSingleton;
 
 public class SignUpActivity extends Activity implements RegisterListener{
 	EditText username;
@@ -106,12 +108,24 @@ public class SignUpActivity extends Activity implements RegisterListener{
 			progressDialog.dismiss();
 		
 		if (success) {
+			
+			String firstName = fname.getText().toString();
+			String lastName = lname.getText().toString();
+			String uname = username.getText().toString();
+			String password = pw1.getText().toString();
+			
+			UserSingleton.getInstance().setObject(new User(uname, password, lastName, firstName));
+			
 			Intent intent = new Intent(SignUpActivity.this, PlacesActivity.class);
 			startActivity(intent);
 			finish();
 		} else {
 			errorMessage = text;
 			showDialog(SHOW_REGISTRATION_ERROR);
+			
+			Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+			startActivity(intent);
+			finish();
 		}
 	}
 	
