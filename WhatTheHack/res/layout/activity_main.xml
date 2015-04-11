@@ -6,6 +6,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@drawable/bg"
     tools:context="com.feutech.whatthehack.MainActivity" >
 
     <LinearLayout
@@ -23,29 +24,90 @@
             android:src="@drawable/ic_launcher"
             android:layout_marginBottom="12dp" />
 
-        <EditText
-            android:id="@+id/usernameEditText"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/hint_username"
-            android:inputType="textPersonName" />
+            android:orientation="horizontal"
+            android:background="@drawable/fieldbox"
+            android:layout_marginBottom="4dp"
+            android:padding="10dp" >
 
-        <EditText
-            android:id="@+id/passwordEditText"
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="fill_parent"
+                android:text="@string/hint_username"
+                android:textColor="@color/bronze"
+                android:textStyle="italic"
+                android:gravity="center|left"
+                android:layout_marginRight="6dp"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+            
+            <View
+                android:layout_width="1dip"
+                android:layout_height="fill_parent"
+                android:background="@color/bronze" />
+
+            <EditText
+                android:id="@+id/usernameEditText"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:ems="10"
+                android:background="@android:color/transparent" 
+                android:inputType="textPersonName"
+                android:textColor="@color/bronze"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/hint_password"
-            android:inputType="textPassword"
-            android:layout_marginBottom="4dp" />
+            android:orientation="horizontal"
+            android:background="@drawable/fieldbox"
+            android:padding="10dp" >
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="fill_parent"
+                android:text="@string/hint_password"
+                android:textColor="@color/bronze"
+                android:textStyle="italic"
+                android:gravity="center|left"
+                android:layout_marginRight="6dp"
+                android:textAppearance="?android:attr/textAppearanceSmall" />
+            
+            <View
+                android:layout_width="1dip"
+                android:layout_height="fill_parent"
+                android:background="@color/bronze" />
+
+            <EditText
+                android:id="@+id/passwordEditText"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:ems="10"
+                android:background="@android:color/transparent"
+                android:inputType="textPassword"
+                android:textColor="@color/bronze"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/loginButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="onClick"
-            android:textColor="#fff"
+            android:layout_marginTop="12dp"
+            android:textColor="@color/bronze"
             android:background="@drawable/button_selector"
             android:text="@string/login" />
         
