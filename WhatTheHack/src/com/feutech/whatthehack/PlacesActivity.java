@@ -50,7 +50,8 @@ public class PlacesActivity extends Activity implements OnItemClickListener{
 
 		placesListView = (ListView) findViewById(R.id.places_listView);
 		
-		places = getPlacesFromDB();
+		places.add(new Place("What's near me?", null));
+		places.addAll(getPlacesFromDB());
 		
 		adapter = new ListViewPlacesAdapter(this, places);
 		
@@ -60,7 +61,7 @@ public class PlacesActivity extends Activity implements OnItemClickListener{
 	
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-		
+		startActivity(new Intent(this, LandingFragmentActivity.class));
 	}
 
 	private ArrayList<Place> getPlacesFromDB() {
