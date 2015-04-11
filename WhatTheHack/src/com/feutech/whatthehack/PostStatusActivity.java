@@ -68,6 +68,7 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 		
 		//resolve location to address:
 		String address = resolveAddress(this.latitude, this.longitude);
+		Toast.makeText(getApplicationContext(), "Resolved address: " + address, Toast.LENGTH_SHORT).show();
 		if (!address.isEmpty())
 		{
 			locationTV.setText(address);
