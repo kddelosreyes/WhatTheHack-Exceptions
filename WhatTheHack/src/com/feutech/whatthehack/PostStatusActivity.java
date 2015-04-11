@@ -4,17 +4,27 @@ import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
+import android.widget.Toast;
 
-public class PostStatusActivity extends Activity {
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.location.LocationServices;
+
+public class PostStatusActivity extends Activity implements
+ConnectionCallbacks, OnConnectionFailedListener{
 
 	ImageView photoIV;
+	GoogleApiClient mGoogleApiClient;
+	protected Location mLastLocation;
 
 	public static final String TAG = "com.feutech.whatthehack.PostStatusActivity";
 	public static final String PostStatusActivity_PhotoPath = "com.feutech.whatthehack.PostStatusActivity.PhotoPath";
@@ -34,6 +44,8 @@ public class PostStatusActivity extends Activity {
 			Log.d(TAG, "photo is null");
 			Log.d(TAG, "file path is : " + getIntent().getStringExtra(PostStatusActivity_PhotoPath));
 		}
+		
+		buildGoogleApiClient();
 	}
 
 	@SuppressWarnings("deprecation")
@@ -85,5 +97,51 @@ public class PostStatusActivity extends Activity {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	protected synchronized void buildGoogleApiClient() {
+	    mGoogleApiClient = new GoogleApiClient.Builder(this)
+	        .addConnectionCallbacks(this)
+	        .addOnConnectionFailedListener(this)
+	        .addApi(LocationServices.API)
+	        .build();
+	}
+	
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
+	@Override
+	public void onConnectionFailed(ConnectionResult arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onConnected(Bundle arg0) {
+		mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (mLastLocation != null) {
+        	
+        } else {
+            Toast.makeText(this, "No location located", Toast.LENGTH_LONG).show();
+        }
+		
+	}
+
+	@Override
+	public void onConnectionSuspended(int arg0) {
+		Log.i(TAG, "Connection suspended");
+        mGoogleApiClient.connect();
+		
 	}
 }
