@@ -1,13 +1,22 @@
 package com.feutech.whatthehack;
 
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,6 +57,14 @@ public class PlacesActivity extends Activity implements OnItemClickListener{
 		
 		places = new ArrayList<Place>();
 
+		// START for testing only
+		places.add(new Place("New Me"));
+		places.add(new Place("Manila"));
+		places.add(new Place("Makati"));
+		places.add(new Place("Quezon City"));
+		// END for testing only
+
+		PlacesAdapter placesAdapter = new PlacesAdapter(this, places);
 		placesListView = (ListView) findViewById(R.id.places_listView);
 		
 		places = getPlacesFromDB();
@@ -107,6 +124,78 @@ public class PlacesActivity extends Activity implements OnItemClickListener{
 		return super.onOptionsItemSelected(item);
 	}
 
+	public void postBtn(View v) {
+		dispatchTakePictureIntent();
+		Log.d("PlacesActivity", "Inside postBtn");
+	}
+	
+	static final int REQUEST_TAKE_PHOTO = 1;
+	private File photoFile;
+
+	private void dispatchTakePictureIntent() {
+		Log.d("PlacesActivity", "dispatching take picture intent");
+	    Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+	    // Ensure that there's a camera activity to handle the intent
+	    if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
+	        // Create the File where the photo should go
+	        photoFile = null;
+	        try {
+	            photoFile = createImageFile();
+	        } catch (IOException ex) {
+	            Log.d("PlacesActivity", ex.getMessage());
+	        }
+	        // Continue only if the File was successfully created
+	        if (photoFile != null) {
+	            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
+	                    Uri.fromFile(photoFile));
+	            startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+	        } else {
+	        	Log.d("PlacesActivity", "image file is null");
+	        }
+	    } else {
+	    	Toast.makeText(getApplicationContext(), "No camera app installed", Toast.LENGTH_SHORT).show();
+	    }
+	}
+	
+	String mCurrentPhotoPath;
+
+	private File createImageFile() throws IOException {
+		Log.d("PlacesActivity", "inside createImageFile()");
+	    // Create an image file name
+	    String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+	    String imageFileName = "JPEG_" + timeStamp + "_";
+	    File storageDir = this.getCacheDir();
+	    File image = File.createTempFile(
+	        imageFileName,  /* prefix */
+	        ".jpg",         /* suffix */
+	        storageDir      /* directory */
+	    );
+
+	    // Save a file: path for use with ACTION_VIEW intents
+	    mCurrentPhotoPath = image.getAbsolutePath();
+	    return image;
+	}
+	
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+	    if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
+	    	/**
+	        Bundle extras = data.getExtras();
+	        
+	        //optional na lang siguro ito ano?
+	        Bitmap imageBitmap = (Bitmap) extras.get("data");
+	        
+	        */
+	        
+	        
+	        String filePhotoPath = photoFile.getAbsolutePath();
+	        Intent i = new Intent(PlacesActivity.this, PostStatusActivity.class);
+	        i.putExtra(PostStatusActivity.PostStatusActivity_PhotoPath, filePhotoPath);
+	        startActivity(i);
+	        //mImageView.setImageBitmap(imageBitmap);
+	    }
+	}
 	@Override
     public void onBackPressed() {
         if (mRecentlyBackPressed) {
