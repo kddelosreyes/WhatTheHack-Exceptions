@@ -27,6 +27,7 @@ import com.google.android.gms.location.LocationServices;
 public class PostStatusActivity extends Activity implements
 ConnectionCallbacks, OnConnectionFailedListener{
 
+	//comment
 	ImageView photoIV;
 	GoogleApiClient mGoogleApiClient;
 	protected Location mLastLocation;
