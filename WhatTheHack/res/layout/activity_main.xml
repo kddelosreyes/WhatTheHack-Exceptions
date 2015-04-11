@@ -20,7 +20,8 @@
             android:id="@+id/imageView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_launcher" />
+            android:src="@drawable/ic_launcher"
+            android:layout_marginBottom="12dp" />
 
         <EditText
             android:id="@+id/usernameEditText"
@@ -36,13 +37,16 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="@string/hint_password"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"
+            android:layout_marginBottom="4dp" />
 
         <Button
             android:id="@+id/loginButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="onClick"
+            android:textColor="#fff"
+            android:background="@drawable/button_selector"
             android:text="@string/login" />
         
     </LinearLayout>
@@ -54,6 +58,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/needHelpButton"
         android:onClick="onClick"
+        android:background="@android:color/transparent" 
         android:text="@string/signup" />
 
     <Button
@@ -63,6 +68,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:onClick="onClick"
+        android:background="@android:color/transparent" 
         android:text="@string/needhelp" />
 
 </RelativeLayout>
