@@ -24,10 +24,10 @@ import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.location.LocationServices;
 
-public class PostStatusActivity extends Activity implements
-ConnectionCallbacks, OnConnectionFailedListener{
+public class PostStatusActivity extends Activity implements ConnectionCallbacks,
+		OnConnectionFailedListener {
 
-	//comment
+	// comment
 	ImageView photoIV;
 	GoogleApiClient mGoogleApiClient;
 	protected Location mLastLocation;
@@ -42,8 +42,9 @@ ConnectionCallbacks, OnConnectionFailedListener{
 		setContentView(R.layout.activity_post_status);
 
 		photoIV = (ImageView) findViewById(R.id.PostActivity_imageIV);
-		
-		Bitmap photo = getScaledDrawable(this, getIntent().getStringExtra(PostStatusActivity_PhotoPath));
+		String photoPath = getIntent().getStringExtra(PostStatusActivity_PhotoPath).trim();
+
+		Bitmap photo = getBitmap(photoPath);
 
 		if (photo != null) {
 			photoIV.setImageBitmap(RotateBitmap(photo, 90));
@@ -51,33 +52,8 @@ ConnectionCallbacks, OnConnectionFailedListener{
 			Log.d(TAG, "photo is null");
 			Log.d(TAG, "file path is : " + getIntent().getStringExtra(PostStatusActivity_PhotoPath));
 		}
-		
-		buildGoogleApiClient();
-	}
 
-	@SuppressWarnings("deprecation")
-	public static Bitmap getScaledDrawable(Activity a, String path) {
-		Display display = a.getWindowManager().getDefaultDisplay();
-		float destWidth = display.getWidth();
-		float destHeight = display.getHeight();
-		// Read in the dimensions of the image on disk
-		BitmapFactory.Options options = new BitmapFactory.Options();
-		options.inJustDecodeBounds = true;
-		BitmapFactory.decodeFile(path, options);
-		float srcWidth = options.outWidth;
-		float srcHeight = options.outHeight;
-		int inSampleSize = 1;
-		if (srcHeight > destHeight || srcWidth > destWidth) {
-			if (srcWidth > srcHeight) {
-				inSampleSize = Math.round(srcHeight / destHeight);
-			} else {
-				inSampleSize = Math.round(srcWidth / destWidth);
-			}
-		}
-		options = new BitmapFactory.Options();
-		options.inSampleSize = inSampleSize;
-		Bitmap bitmap = BitmapFactory.decodeFile(path, options);
-		return bitmap;
+		buildGoogleApiClient();
 	}
 
 	public static Bitmap RotateBitmap(Bitmap source, float angle) {
@@ -105,109 +81,106 @@ ConnectionCallbacks, OnConnectionFailedListener{
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
-	protected synchronized void buildGoogleApiClient() {
-	    mGoogleApiClient = new GoogleApiClient.Builder(this)
-	        .addConnectionCallbacks(this)
-	        .addOnConnectionFailedListener(this)
-	        .addApi(LocationServices.API)
-	        .build();
-	}
-	
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mGoogleApiClient.connect();
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mGoogleApiClient.isConnected()) {
-            mGoogleApiClient.disconnect();
-        }
-    }
+	protected synchronized void buildGoogleApiClient() {
+		mGoogleApiClient = new GoogleApiClient.Builder(this).addConnectionCallbacks(this)
+				.addOnConnectionFailedListener(this).addApi(LocationServices.API).build();
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		mGoogleApiClient.connect();
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		if (mGoogleApiClient.isConnected()) {
+			mGoogleApiClient.disconnect();
+		}
+	}
 
 	@Override
 	public void onConnectionFailed(ConnectionResult arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onConnected(Bundle arg0) {
 		mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (mLastLocation != null) {
-        	Toast.makeText(this, "Long: " + mLastLocation.getLongitude() + ", Lat: " + mLastLocation.getLatitude(), Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(this, "No location located", Toast.LENGTH_LONG).show();
-        }
-		
+		if (mLastLocation != null) {
+			Toast.makeText(
+					this,
+					"Long: " + mLastLocation.getLongitude() + ", Lat: "
+							+ mLastLocation.getLatitude(), Toast.LENGTH_SHORT).show();
+		} else {
+			Toast.makeText(this, "No location located", Toast.LENGTH_LONG).show();
+		}
+
 	}
 
 	@Override
 	public void onConnectionSuspended(int arg0) {
 		Log.i(TAG, "Connection suspended");
-        mGoogleApiClient.connect();
-		
+		mGoogleApiClient.connect();
+
 	}
-	
+
 	private Bitmap getBitmap(String path) {
 		InputStream in = null;
 		try {
-		    final int IMAGE_MAX_SIZE = 1200000; // 1.2MP
-		    in = new FileInputStream(path);
+			final int IMAGE_MAX_SIZE = 1200000; // 1.2MP
+			in = new FileInputStream(path);
 
-		    // Decode image size
-		    BitmapFactory.Options o = new BitmapFactory.Options();
-		    o.inJustDecodeBounds = true;
-		    BitmapFactory.decodeStream(in, null, o);
-		    in.close();
+			// Decode image size
+			BitmapFactory.Options o = new BitmapFactory.Options();
+			o.inJustDecodeBounds = true;
+			BitmapFactory.decodeStream(in, null, o);
+			in.close();
 
+			int scale = 1;
+			while ((o.outWidth * o.outHeight) * (1 / Math.pow(scale, 2)) > IMAGE_MAX_SIZE) {
+				scale++;
+			}
+			Log.d(TAG, "scale = " + scale + ", orig-width: " + o.outWidth + ", orig-height: "
+					+ o.outHeight);
 
+			Bitmap b = null;
 
-		    int scale = 1;
-		    while ((o.outWidth * o.outHeight) * (1 / Math.pow(scale, 2)) > 
-		          IMAGE_MAX_SIZE) {
-		       scale++;
-		    }
-		    Log.d(TAG, "scale = " + scale + ", orig-width: " + o.outWidth + ", orig-height: " + o.outHeight);
+			if (scale > 1) {
+				scale--;
+				// scale to max possible inSampleSize that still yields an image
+				// larger than target
+				o = new BitmapFactory.Options();
+				o.inSampleSize = scale;
+				b = BitmapFactory.decodeStream(in, null, o);
 
-		    Bitmap b = null;
-		    in = mContentResolver.openInputStream(uri);
-		    if (scale > 1) {
-		        scale--;
-		        // scale to max possible inSampleSize that still yields an image
-		        // larger than target
-		        o = new BitmapFactory.Options();
-		        o.inSampleSize = scale;
-		        b = BitmapFactory.decodeStream(in, null, o);
+				// resize to desired dimensions
+				int height = b.getHeight();
+				int width = b.getWidth();
+				Log.d(TAG, "1th scale operation dimenions - width: " + width + ", height: "
+						+ height);
 
-		        // resize to desired dimensions
-		        int height = b.getHeight();
-		        int width = b.getWidth();
-		        Log.d(TAG, "1th scale operation dimenions - width: " + width + ", height: " + height);
+				double y = Math.sqrt(IMAGE_MAX_SIZE / (((double) width) / height));
+				double x = (y / height) * width;
 
-		        double y = Math.sqrt(IMAGE_MAX_SIZE
-		                / (((double) width) / height));
-		        double x = (y / height) * width;
+				Bitmap scaledBitmap = Bitmap.createScaledBitmap(b, (int) x, (int) y, true);
+				b.recycle();
+				b = scaledBitmap;
 
-		        Bitmap scaledBitmap = Bitmap.createScaledBitmap(b, (int) x, 
-		           (int) y, true);
-		        b.recycle();
-		        b = scaledBitmap;
+				System.gc();
+			} else {
+				b = BitmapFactory.decodeStream(in);
+			}
+			in.close();
 
-		        System.gc();
-		    } else {
-		        b = BitmapFactory.decodeStream(in);
-		    }
-		    in.close();
-
-		    Log.d(TAG, "bitmap size - width: " +b.getWidth() + ", height: " + 
-		       b.getHeight());
-		    return b;
+			Log.d(TAG, "bitmap size - width: " + b.getWidth() + ", height: " + b.getHeight());
+			return b;
 		} catch (IOException e) {
-		    Log.e(TAG, e.getMessage(),e);
-		    return null;
+			Log.e(TAG, e.getMessage(), e);
+			return null;
 		}
+	}
 }
