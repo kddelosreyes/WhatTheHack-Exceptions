@@ -10,5 +10,6 @@
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
     <string name="title_activity_sign_up">Sign Up</string>
+    <string name="title_activity_places">Places</string>
 
 </resources>
