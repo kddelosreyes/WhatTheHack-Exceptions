@@ -86,7 +86,8 @@ public class MainActivity extends Activity implements OnClickListener {
 			if(isEmpty(usernameEditText) || isEmpty(passwordEditText)) {
 				showDialog(SHOW_ERROR_DIALOG);
 			} else {
-				
+				Intent intent = new Intent(MainActivity.this, PlacesActivity.class);
+				startActivity(intent);
 			}
 			break;
 		case R.id.registerButton:

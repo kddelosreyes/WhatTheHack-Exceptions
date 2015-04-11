@@ -1,9 +1,11 @@
 package com.feutech.whatthehack;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -29,7 +31,7 @@ public class SignUpActivity extends Activity {
 		
 	}
 	
-	public void signUp() {
+	public void signUp(View v) {
 		String p1 = pw1.getText().toString();
 		String p2 = pw2.getText().toString();
 		if (!isPasswordMatching(p1, p2)) {
@@ -38,6 +40,10 @@ public class SignUpActivity extends Activity {
 			Toast.makeText(getApplicationContext(), "Please fill up all fields", Toast.LENGTH_SHORT).show();
 		} else {
 			//continue and check online to register.
+			
+			//temporarily go to placesActivity first
+			Intent intent = new Intent(SignUpActivity.this, PlacesActivity.class);
+			startActivity(intent);
 		}
 	}
 	
