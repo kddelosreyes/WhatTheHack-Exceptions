@@ -13,5 +13,6 @@
     <string name="confirm">Verify Password</string>
     <string name="title_activity_places">Places</string>
     <string name="title_activity_post_status">Post Status</string>
+    <string name="post">Post</string>
 
 </resources>
