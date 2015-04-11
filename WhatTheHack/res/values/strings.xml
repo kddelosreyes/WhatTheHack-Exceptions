@@ -7,6 +7,8 @@
     <string name="login">LOG IN</string>
     <string name="signup">Sign Up for ...</string>
     <string name="needhelp">Need help?</string>
+    <string name="hint_username">Username</string>
+    <string name="hint_password">Password</string>
     <string name="title_activity_sign_up">Sign Up</string>
 
 </resources>
