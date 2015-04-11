@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="100dp" >
+    android:layout_height="150dp" >
 
     <com.android.volley.toolbox.NetworkImageView
         android:id="@+id/networkImageViewPlace"
@@ -11,12 +11,18 @@
     
     <TextView
         android:id="@+id/textViewPlaces"
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
+        android:layout_marginLeft="15dp"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
-        android:paddingLeft="30dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:textColor="#fff"
+        android:background="@drawable/places_background"
         android:layout_alignParentBottom="true"
         android:text="Test"
         android:textAppearance="?android:attr/textAppearanceLarge" />

@@ -83,7 +83,7 @@ public class MobileApi {
 						@Override
 						public void onErrorResponse(VolleyError err) {
 							err.printStackTrace();
-							Log.i("TAG", err.getMessage());
+//							Log.i("TAG", err.getMessage()); 
 							listener.loginResult(false, err.getMessage());
 						}
 					})
