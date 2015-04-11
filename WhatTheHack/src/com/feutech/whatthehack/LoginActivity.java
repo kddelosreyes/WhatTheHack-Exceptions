@@ -29,7 +29,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 
 	private static final String EMPTY = "";
 	private static final String WARNING_MESSAGE = "Username and/or password empty!";
-	private static final String DOES_NOT_EXIST = "User does not exists.";
+	private static final String DOES_NOT_EXIST = "Please check your Internet connection.";
 
 	private static final int SHOW_ERROR_DIALOG = 1;
 	private static final int SHOW_LOGIN_ERROR = 2;
@@ -115,6 +115,7 @@ public class LoginActivity extends Activity implements OnClickListener,
 		case R.id.registerButton:
 			Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
 			startActivity(intent);
+			finish();
 			break;
 		case R.id.needHelpButton:
 			break;
@@ -144,5 +145,11 @@ public class LoginActivity extends Activity implements OnClickListener,
 		} else {
 			showDialog(SHOW_LOGIN_ERROR);
 		}
+	}
+	
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		finish();
 	}
 }

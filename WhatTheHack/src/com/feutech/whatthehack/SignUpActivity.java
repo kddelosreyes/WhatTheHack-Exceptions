@@ -28,6 +28,7 @@ public class SignUpActivity extends Activity implements RegisterListener{
 	private ProgressDialog progressDialog;
 	
 	private static final int SHOW_REGISTRATION_ERROR = 1;
+	private String errorMessage;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +99,7 @@ public class SignUpActivity extends Activity implements RegisterListener{
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void registerResult(boolean success, String text) {
 		if (progressDialog.isShowing())
@@ -108,6 +110,7 @@ public class SignUpActivity extends Activity implements RegisterListener{
 			startActivity(intent);
 			finish();
 		} else {
+			errorMessage = text;
 			showDialog(SHOW_REGISTRATION_ERROR);
 		}
 	}
@@ -140,8 +143,15 @@ public class SignUpActivity extends Activity implements RegisterListener{
 
 		switch (id) {
 		case SHOW_REGISTRATION_ERROR:
-//			textView.setText(DOES_NOT_EXIST);
+			textView.setText(errorMessage);
 			break;
 		}
+	}
+	
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
+		finish();
 	}
 }
