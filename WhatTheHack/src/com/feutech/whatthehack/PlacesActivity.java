@@ -56,15 +56,6 @@ public class PlacesActivity extends Activity implements OnItemClickListener{
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
 		places = new ArrayList<Place>();
-
-		// START for testing only
-		places.add(new Place("New Me"));
-		places.add(new Place("Manila"));
-		places.add(new Place("Makati"));
-		places.add(new Place("Quezon City"));
-		// END for testing only
-
-		PlacesAdapter placesAdapter = new PlacesAdapter(this, places);
 		placesListView = (ListView) findViewById(R.id.places_listView);
 		
 		places = getPlacesFromDB();
