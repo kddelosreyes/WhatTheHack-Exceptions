@@ -131,7 +131,7 @@ ConnectionCallbacks, OnConnectionFailedListener{
 	public void onConnected(Bundle arg0) {
 		mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
-        	Toast.makeText(this, "Long: " + mLastLocation.getLongitude() + ", Lat: " + mLastLocation.getLatitude(), Toast.LENGTH_SHORT).
+        	Toast.makeText(this, "Long: " + mLastLocation.getLongitude() + ", Lat: " + mLastLocation.getLatitude(), Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "No location located", Toast.LENGTH_LONG).show();
         }
