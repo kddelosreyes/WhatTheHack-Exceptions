@@ -1,5 +1,8 @@
 package com.feutech.whatthehack;
 
+import com.feutech.whatthehack.api.MobileApi;
+import com.feutech.whatthehack.listeners.LoginListener;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -13,15 +16,17 @@ import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class MainActivity extends Activity implements OnClickListener {
+public class MainActivity extends Activity implements OnClickListener, LoginListener {
 	
 	private EditText usernameEditText;
 	private EditText passwordEditText;
 	
 	private static final String EMPTY = "";
 	private static final String WARNING_MESSAGE = "Username and/or password empty!";
+	private static final String DOES_NOT_EXIST = "User does not exists.";
 	
-	private static final int SHOW_ERROR_DIALOG = 1; 
+	private static final int SHOW_ERROR_DIALOG = 1;
+	private static final int SHOW_LOGIN_ERROR = 2;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +59,7 @@ public class MainActivity extends Activity implements OnClickListener {
 
 		switch (id) {
 		case SHOW_ERROR_DIALOG:
+		case SHOW_LOGIN_ERROR:
 			dialogview = inflater.inflate(R.layout.alert_dialog_warning, null);
 			break;
 		}
@@ -74,6 +80,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		switch (id) {
 		case SHOW_ERROR_DIALOG:
 			textView.setText(WARNING_MESSAGE);
+		case SHOW_LOGIN_ERROR:
+			textView.setText(DOES_NOT_EXIST);
 			break;
 		}
 	}
@@ -86,8 +94,10 @@ public class MainActivity extends Activity implements OnClickListener {
 			if(isEmpty(usernameEditText) || isEmpty(passwordEditText)) {
 				showDialog(SHOW_ERROR_DIALOG);
 			} else {
-				Intent intent = new Intent(MainActivity.this, PlacesActivity.class);
-				startActivity(intent);
+				String username = usernameEditText.getText().toString();
+				String password = passwordEditText.getText().toString();
+				
+				MobileApi.loginUser(username, password, this);
 			}
 			break;
 		case R.id.registerButton:
@@ -96,6 +106,16 @@ public class MainActivity extends Activity implements OnClickListener {
 			break;
 		case R.id.needHelpButton:
 			break;
+		}
+	}
+
+	@Override
+	public void loginResult(boolean success, String text) {
+		if(success) {
+			Intent intent = new Intent(MainActivity.this, PlacesActivity.class);
+			startActivity(intent);
+		} else {
+			showDialog(SHOW_LOGIN_ERROR);
 		}
 	}
 }

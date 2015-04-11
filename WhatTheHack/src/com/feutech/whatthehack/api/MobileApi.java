@@ -53,16 +53,19 @@ public class MobileApi {
 							try {
 								JSONObject responseObject = new JSONObject(response);
 								
-								String firstName = responseObject.getString(Constants.API_USER_FNAME);
-								String lastName = responseObject.getString(Constants.API_USER_LNAME);
-								String username = responseObject.getString(Constants.API_USER_USERNAME);
-								String password = responseObject.getString(Constants.API_USER_PASSWORD);
-								
-								UserSingleton.getInstance().setObject(
-										new User(username, password, lastName,
-												firstName));
-								
-								listener.loginResult(true, "success");
+								if (responseObject.getString("success").equals("1")) {
+									String firstName = responseObject.getString(Constants.API_USER_FNAME);
+									String lastName = responseObject.getString(Constants.API_USER_LNAME);
+									String username = responseObject.getString(Constants.API_USER_USERNAME);
+									String password = responseObject.getString(Constants.API_USER_PASSWORD);
+									
+									UserSingleton.getInstance().setObject(
+											new User(username, password, lastName,
+													firstName));
+									
+									listener.loginResult(true, "success");
+								} else
+									listener.loginResult(false, Constants.DOES_NOT_EXIST);
 								
 							} catch (JSONException e) {
 								e.printStackTrace();
@@ -87,9 +90,9 @@ public class MobileApi {
 					
 					HashMap<String, String> data = new HashMap<String, String>();
 					
-					data.put("username", username);
-					data.put("password", password);
-					data.put("login", Constants.TAG_LOGIN);
+					data.put(Constants.API_LOGIN_USERNAME, username);
+					data.put(Constants.API_LOGIN_PASSWORD, password);
+					data.put("tag", Constants.TAG_LOGIN);
 					
 					return data;
 				}

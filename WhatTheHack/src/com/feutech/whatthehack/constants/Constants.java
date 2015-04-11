@@ -4,8 +4,8 @@ public class Constants {
 
 	// URL ENDPOINTS
 	
-	public static final String BASE_URL = "";
-	public static final String TAG_LOGIN = "";
+	public static final String BASE_URL = "http://feueac.acm.org/turistagram/mobile/";
+	public static final String TAG_LOGIN = "login";
 	
 	// USER KEYS
 	
@@ -18,4 +18,6 @@ public class Constants {
 	
 	public static final String API_LOGIN_USERNAME = "username";
 	public static final String API_LOGIN_PASSWORD = "password";
+	
+	public static final String DOES_NOT_EXIST = "User does not exists.";
 }
