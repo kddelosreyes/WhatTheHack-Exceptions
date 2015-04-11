@@ -105,6 +105,7 @@ public class PlacesActivity extends Activity implements OnItemClickListener{
 			editor.commit();
 			
 			startActivity(new Intent(PlacesActivity.this, LoginActivity.class));
+			finish();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

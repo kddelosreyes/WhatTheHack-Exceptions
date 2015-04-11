@@ -145,4 +145,10 @@ public class LoginActivity extends Activity implements OnClickListener,
 			showDialog(SHOW_LOGIN_ERROR);
 		}
 	}
+	
+	@Override
+	public void onBackPressed() {
+		super.onBackPressed();
+		finish();
+	}
 }
