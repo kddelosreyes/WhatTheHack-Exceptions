@@ -1,10 +1,15 @@
 package com.feutech.whatthehack;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
@@ -25,6 +30,7 @@ ConnectionCallbacks, OnConnectionFailedListener{
 	ImageView photoIV;
 	GoogleApiClient mGoogleApiClient;
 	protected Location mLastLocation;
+	private Object mContentResolver;
 
 	public static final String TAG = "com.feutech.whatthehack.PostStatusActivity";
 	public static final String PostStatusActivity_PhotoPath = "com.feutech.whatthehack.PostStatusActivity.PhotoPath";
@@ -131,7 +137,7 @@ ConnectionCallbacks, OnConnectionFailedListener{
 	public void onConnected(Bundle arg0) {
 		mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
-        	Toast.makeText(this, "Long: " + mLastLocation.getLongitude() + ", Lat: " + mLastLocation.getLatitude(), Toast.LENGTH_SHORT).
+        	Toast.makeText(this, "Long: " + mLastLocation.getLongitude() + ", Lat: " + mLastLocation.getLatitude(), Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "No location located", Toast.LENGTH_LONG).show();
         }
@@ -144,4 +150,63 @@ ConnectionCallbacks, OnConnectionFailedListener{
         mGoogleApiClient.connect();
 		
 	}
+	
+	private Bitmap getBitmap(String path) {
+		InputStream in = null;
+		try {
+		    final int IMAGE_MAX_SIZE = 1200000; // 1.2MP
+		    in = new FileInputStream(path);
+
+		    // Decode image size
+		    BitmapFactory.Options o = new BitmapFactory.Options();
+		    o.inJustDecodeBounds = true;
+		    BitmapFactory.decodeStream(in, null, o);
+		    in.close();
+
+
+
+		    int scale = 1;
+		    while ((o.outWidth * o.outHeight) * (1 / Math.pow(scale, 2)) > 
+		          IMAGE_MAX_SIZE) {
+		       scale++;
+		    }
+		    Log.d(TAG, "scale = " + scale + ", orig-width: " + o.outWidth + ", orig-height: " + o.outHeight);
+
+		    Bitmap b = null;
+		    in = mContentResolver.openInputStream(uri);
+		    if (scale > 1) {
+		        scale--;
+		        // scale to max possible inSampleSize that still yields an image
+		        // larger than target
+		        o = new BitmapFactory.Options();
+		        o.inSampleSize = scale;
+		        b = BitmapFactory.decodeStream(in, null, o);
+
+		        // resize to desired dimensions
+		        int height = b.getHeight();
+		        int width = b.getWidth();
+		        Log.d(TAG, "1th scale operation dimenions - width: " + width + ", height: " + height);
+
+		        double y = Math.sqrt(IMAGE_MAX_SIZE
+		                / (((double) width) / height));
+		        double x = (y / height) * width;
+
+		        Bitmap scaledBitmap = Bitmap.createScaledBitmap(b, (int) x, 
+		           (int) y, true);
+		        b.recycle();
+		        b = scaledBitmap;
+
+		        System.gc();
+		    } else {
+		        b = BitmapFactory.decodeStream(in);
+		    }
+		    in.close();
+
+		    Log.d(TAG, "bitmap size - width: " +b.getWidth() + ", height: " + 
+		       b.getHeight());
+		    return b;
+		} catch (IOException e) {
+		    Log.e(TAG, e.getMessage(),e);
+		    return null;
+		}
 }
