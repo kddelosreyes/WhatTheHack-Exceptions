@@ -9,5 +9,6 @@
     <string name="needhelp">Need help?</string>
     <string name="hint_username">Username</string>
     <string name="hint_password">Password</string>
+    <string name="title_activity_sign_up">SignUpActivity</string>
 
 </resources>
