@@ -83,7 +83,10 @@ public class PlacesActivity extends Activity implements OnItemClickListener, Get
 	
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
-		startActivity(new Intent(this, LandingFragmentActivity.class));
+		Intent intent = new Intent(this, LandingFragmentActivity.class);
+		Place place = (Place) arg0.getAdapter().getItem(position);
+		intent.putExtra(LandingFragmentActivity.PLACE_NAME, place.getPlace_name());
+		startActivity(intent);
 	}
 
 	private ArrayList<Place> getPlacesFromDB() {

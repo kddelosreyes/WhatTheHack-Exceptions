@@ -1,6 +1,7 @@
 package com.feutech.whatthehack;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -8,6 +9,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
@@ -25,12 +27,21 @@ public class LandingFragmentActivity extends FragmentActivity implements OnClick
 	
 	private ImageView imageViewMap, imageViewSearch;
 	
+	public static final String PLACE_NAME = "placename";
+	
 	private ProgressDialog progressDialog;
 	
 	@Override
 	protected void onCreate(Bundle arg0) {
 		super.onCreate(arg0);
 		setContentView(R.layout.landing_fragment_activity);
+		
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+		
+		Intent intent = getIntent();
+		String placeName = intent.getStringExtra(PLACE_NAME);
+		getActionBar().setTitle(placeName);
 		
 		fm = getSupportFragmentManager();
 
