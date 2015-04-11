@@ -26,6 +26,6 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:onClick="postBtn"
-        android:src="@drawable/ic_launcher" />
+        android:src="@drawable/ic_action_camera" />
 
 </RelativeLayout>
