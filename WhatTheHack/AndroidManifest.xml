@@ -60,6 +60,12 @@
         </activity>
         
         <activity
+            android:name=".PostStatusActivity"
+            android:label="Post Status"
+            android:screenOrientation="portrait" >
+        </activity>
+        
+        <activity
             android:name=".LandingFragmentActivity"
             android:label="@string/title_activity_places"
             android:screenOrientation="portrait" >
@@ -76,7 +82,7 @@
             android:value="@integer/google_play_services_version"
      	/>
         <activity
-            android:name=".PostStatusActivity"
+            android:name=".PostDetailsActivity"
             android:label="@string/title_activity_post_status" >
         </activity>
     </application>

@@ -2,20 +2,25 @@ package com.feutech.whatthehack.fragments;
 
 import java.util.ArrayList;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 
+import com.feutech.whatthehack.PostDetailsActivity;
 import com.feutech.whatthehack.R;
 import com.feutech.whatthehack.adapters.ListViewPostsAdapter;
 import com.feutech.whatthehack.database.PostHelper;
 import com.feutech.whatthehack.model.Post;
+import com.feutech.whatthehack.utilities.PostSingleton;
 
-public class PostsListViewFragment extends Fragment {
+public class PostsListViewFragment extends Fragment implements OnItemClickListener {
 
 	private View view;
 	
@@ -42,6 +47,14 @@ public class PostsListViewFragment extends Fragment {
 		
 		listViewPosts.setAdapter(adapter);
 		
+		listViewPosts.setOnItemClickListener(this);
 		return view;
 	}
+
+	@Override
+	public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+		PostSingleton.getInstance().setObject(listOfPosts.get(position));
+		startActivity(new Intent(getActivity(), PostDetailsActivity.class));
+	}
+	
 }

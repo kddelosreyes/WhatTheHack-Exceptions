@@ -40,6 +40,7 @@ public class SignUpActivity extends Activity implements RegisterListener{
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		
+		
 		username = (EditText)findViewById(R.id.username_et);
 		pw1 = (EditText) findViewById(R.id.password_et);
 		pw2 = (EditText) findViewById(R.id.verify_password_et);
