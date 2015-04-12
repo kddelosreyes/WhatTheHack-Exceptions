@@ -88,7 +88,7 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 		o.inJustDecodeBounds = true;
 		BitmapFactory.decodeFile(photoPath, o);
 		
-		photo = decodeFile(new File(photoPath));
+		photo = RotateBitmap(decodeFile(new File(photoPath)), 90);
 		
 		showKeyboard();
 		postET.addTextChangedListener(new TextWatcher() {
@@ -110,7 +110,7 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 
 		//set photo to screen
 		if (photo != null) {
-			photoIV.setImageBitmap(RotateBitmap(photo, 90));
+			photoIV.setImageBitmap(photo);
 		} else {
 			Log.d(TAG, "photo is null");
 			Log.d(TAG, "file path is : " + getIntent().getStringExtra(PostStatusActivity_PhotoPath));
@@ -130,7 +130,6 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 			inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
 		}
 	}
-
 	
 	public void postToWeb() {
 		
@@ -180,25 +179,6 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 		matrix.postRotate(angle);
 		return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix,
 				true);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.post_status, menu);
-		return true;
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle action bar item clicks here. The action bar will
-		// automatically handle clicks on the Home/Up button, so long
-		// as you specify a parent activity in AndroidManifest.xml.
-		int id = item.getItemId();
-		if (id == R.id.action_settings) {
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 
 	protected synchronized void buildGoogleApiClient() {

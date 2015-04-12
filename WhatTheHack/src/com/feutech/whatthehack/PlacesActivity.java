@@ -84,7 +84,6 @@ public class PlacesActivity extends Activity implements OnItemClickListener, Get
 			adapter = new ListViewPlacesAdapter(this, places);
 			placesListView.setAdapter(adapter);
 		}
-			
 	}
 	
 	@Override
