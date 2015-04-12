@@ -15,7 +15,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Account Information"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/blue_green" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -143,7 +144,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:text="Personal Information"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="@color/blue_green" />
 
     <LinearLayout
         android:layout_width="match_parent"
