@@ -1,94 +1,103 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="@dimen/activity_horizontal_margin"
+    android:orientation="vertical"
     android:padding="20dp" >
-
-    <com.android.volley.toolbox.NetworkImageView
-        android:id="@+id/networkImageViewPlace"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginRight="10dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_toRightOf="@+id/networkImageViewPlace"
-        android:layout_alignTop="@+id/networkImageViewPlace"
-        android:layout_alignBottom="@id/networkImageViewPlace"
-        android:orientation="vertical" >
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
 
-        <TextView
-            android:id="@+id/textViewUsername"
-            android:layout_width="wrap_content"
+        <com.android.volley.toolbox.NetworkImageView
+            android:id="@+id/networkImageViewPlace"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/textbox_background" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Username" />
+            android:orientation="vertical" >
 
-        <TextView
-            android:id="@+id/textViewAddress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:maxLines="2"
-            android:ellipsize="end"
-            android:text="Address Address Address Address Address Address Address Address Address Address" />
+            <TextView
+                android:id="@+id/textViewUsername"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Username"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/textViewStatusMessage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:maxLines="2"
-            android:text="status status status status status status status status status status status status" />
+            <TextView
+                android:id="@+id/textViewAddress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:text="Address Address Address Address Address Address Address Address Address Address"
+                android:textStyle="italic" />
 
+            <TextView
+                android:id="@+id/textViewStatusMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:maxLines="2"
+                android:text="status status status status status status status status status status status status" />
+        </LinearLayout>
     </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_below="@+id/networkImageViewPlace" >
+        android:layout_marginTop="10dp" >
 
         <ImageView
             android:id="@+id/imageViewCategory"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:src="@drawable/category_art" />
-        
+
         <TextView
             android:id="@+id/downvoteCounter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="+100"
             android:layout_alignParentRight="true"
             android:gravity="center"
+            android:text="+100"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-        
+
         <ImageView
             android:id="@+id/downvoteCategory"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_toLeftOf="@+id/downvoteCounter"
             android:src="@drawable/category_art" />
-        
+
         <TextView
             android:id="@+id/upvoteCounter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="+100"
             android:layout_toLeftOf="@+id/downvoteCategory"
             android:gravity="center"
+            android:text="+100"
             android:textAppearance="?android:attr/textAppearanceMedium" />
-        
+
         <ImageView
             android:id="@+id/upvoteCategory"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:layout_toLeftOf="@+id/upvoteCounter"
             android:src="@drawable/category_art" />
-
     </RelativeLayout>
 
-</RelativeLayout>
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/bronze" />
+
+</LinearLayout>
