@@ -8,16 +8,21 @@ import java.util.HashMap;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.location.Location;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -43,6 +48,7 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 	private TextView locationTV;
 	private Button postBtn;
 	private EditText postET;
+	private TextView remaining;
 	
 	private GoogleApiClient mGoogleApiClient;
 	protected Location mLastLocation;
@@ -50,6 +56,8 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 	private Bitmap photo;
 	
 	private double longitude, latitude;
+	
+	private static final int MAX = 150;
 
 	public static final String TAG = "com.feutech.whatthehack.PostStatusActivity";
 	public static final String PostStatusActivity_PhotoPath = "com.feutech.whatthehack.PostStatusActivity.PhotoPath";
@@ -61,23 +69,43 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_post_status);
 
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+				WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
 		photoIV = (ImageView) findViewById(R.id.PostActivity_imageIV);
 		locationTV = (TextView) findViewById(R.id.PostStatus_location_TextView);
 		postBtn = (Button) findViewById(R.id.PostStatus_post_Button);
 		postET = (EditText) findViewById(R.id.PostStatus_post_EditText);
+		remaining = (TextView) findViewById(R.id.PostStatus_Remaining_TextView);
 		
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setMessage("Posting...");
 		progressDialog.setCancelable(false);
 		
 		String photoPath = getIntent().getStringExtra(PostStatusActivity_PhotoPath).trim();
-
 		
 		BitmapFactory.Options o = new BitmapFactory.Options();
 		o.inJustDecodeBounds = true;
 		BitmapFactory.decodeFile(photoPath, o);
 		
 		photo = decodeFile(new File(photoPath));
+		
+		showKeyboard();
+		postET.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				String text = postET.getText().toString();
+				int remainingCharacters = MAX - text.length();
+				remaining.setText(String.valueOf(remainingCharacters));
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {}
+			
+			@Override
+			public void afterTextChanged(Editable arg0) {}
+		});
 		
 
 		//set photo to screen
@@ -93,6 +121,16 @@ public class PostStatusActivity extends Activity implements ConnectionCallbacks,
 		
 		postBtn.setOnClickListener(this);
 	}
+
+	private void showKeyboard() {
+		View view = this.getCurrentFocus();
+		if (view != null) {
+			InputMethodManager inputManager = (InputMethodManager) this
+					.getSystemService(Context.INPUT_METHOD_SERVICE);
+			inputManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+		}
+	}
+
 	
 	public void postToWeb() {
 		
