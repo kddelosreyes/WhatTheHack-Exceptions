@@ -98,8 +98,7 @@ public class ListViewPostsAdapter extends BaseAdapter implements PerformVoteList
 			
 			@Override
 			public void onClick(View v) {
-				updateList("upvote", post.getPost_id());
-//				MobileApi.votePost(user.getUsername(), post.getPost_id(), "upvote", ListViewPostsAdapter.this);
+				MobileApi.votePost(user.getUsername(), post.getPost_id(), "upvote", ListViewPostsAdapter.this);
 			}
 		});
 		
@@ -107,8 +106,7 @@ public class ListViewPostsAdapter extends BaseAdapter implements PerformVoteList
 			
 			@Override
 			public void onClick(View v) {
-				updateList("downvote", post.getPost_id());
-//				MobileApi.votePost(user.getUsername(), post.getPost_id(), "downvote", ListViewPostsAdapter.this);
+				MobileApi.votePost(user.getUsername(), post.getPost_id(), "downvote", ListViewPostsAdapter.this);
 			}
 		});
 		
@@ -127,11 +125,9 @@ public class ListViewPostsAdapter extends BaseAdapter implements PerformVoteList
 	}
 
 	@Override
-	public void voteResultPerformed(boolean success, String vote, int post_id) {
+	public void voteResultPerformed(String text, boolean success, String vote, int post_id) {
 		if (success) {
-			
-		} else {
-			
-		}
+			updateList(vote, post_id);
+		} else {}
 	}
 }

@@ -539,6 +539,7 @@ public class MobileApi {
 	
 	public static void votePost (String username, int post_id, String vote, PerformVoteListener listener) {
 		Thread t = new Thread(new ThreadVotePost(username, post_id, vote, listener));
+		t.run();
 	}
 	
 	private static class ThreadVotePost implements Runnable {
@@ -564,6 +565,18 @@ public class MobileApi {
 						@Override
 						public void onResponse(String response) {
 							Log.i("TAG", "response on vote performed: " + response);
+							
+							try {
+								JSONObject jsonResponse = new JSONObject(response);
+								
+								if (jsonResponse.getInt("success") == 1)
+									listener.voteResultPerformed("success", true, vote, post_id);
+								else
+									listener.voteResultPerformed("An error occured, please try again.", false, vote, post_id);
+							} catch (JSONException e) {
+								e.printStackTrace();
+								listener.voteResultPerformed("An error occured, please try again.", false, vote, post_id);
+							}
 						}
 					}, 
 					
@@ -572,6 +585,7 @@ public class MobileApi {
 						@Override
 						public void onErrorResponse(VolleyError err) {
 							err.printStackTrace();
+							listener.voteResultPerformed("An error occured, please try again.", false, vote, post_id);
 						}
 					})
 			{
@@ -589,6 +603,8 @@ public class MobileApi {
 					return data;
 				}
 			};
+			
+			AppController.getInstance().addToRequestQueue(toPost);
 		}
 		
 	}

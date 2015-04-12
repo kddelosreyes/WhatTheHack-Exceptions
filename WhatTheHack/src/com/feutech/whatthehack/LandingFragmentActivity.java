@@ -123,10 +123,16 @@ public class LandingFragmentActivity extends FragmentActivity implements OnClick
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.imageViewSearch:
-				viewPager.setCurrentItem(1);
+				if (viewPager != null)
+					viewPager.setCurrentItem(1);
+				else
+					Toast.makeText(this, "Error in network/internal operations. Please try again.", Toast.LENGTH_SHORT).show();
 				break;
 			case R.id.imageViewMap:
-				viewPager.setCurrentItem(0);
+				if (viewPager != null)
+					viewPager.setCurrentItem(0);
+				else
+					Toast.makeText(this, "Error in network/internal operations. Please try again.", Toast.LENGTH_SHORT).show();
 				break;
 		}
 	}

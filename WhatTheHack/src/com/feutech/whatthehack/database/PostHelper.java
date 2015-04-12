@@ -170,6 +170,7 @@ public class PostHelper {
 			
 			Post post = getPost(post_id);
 
+			Log.i("TAG", vote);
 			if (vote.equals("upvote")) {
 				values.put(UPVOTE, post.getUpvote() == 0 ? 1 : 0);
 				values.put(TOTAL_UPVOTE, post.getUpvote() == 0 ? post.getTotalUpvote() + 1 : post.getTotalUpvote() - 1);
