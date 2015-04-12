@@ -8,12 +8,19 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.feutech.whatthehack.R;
+import com.google.android.gms.maps.model.LatLng;
 
 public class MapPlacesFragment extends Fragment {
 
 	private View view;
 	
 	private MapFragment mapFragment;
+	
+	private LatLng latlng;
+	
+	public MapPlacesFragment(LatLng latlng) {
+		this.latlng = latlng;
+	}
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater,
@@ -30,7 +37,7 @@ public class MapPlacesFragment extends Fragment {
 	}
 	
 	private void initializeMap() {
-		mapFragment = new MapFragment();
+		mapFragment = new MapFragment(latlng);
 		getFragmentManager().beginTransaction()
 				.replace(R.id.mapPlaceholder, mapFragment).commit();
 	}

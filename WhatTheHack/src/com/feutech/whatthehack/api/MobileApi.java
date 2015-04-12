@@ -19,9 +19,11 @@ import com.feutech.whatthehack.AppController;
 import com.feutech.whatthehack.constants.Constants;
 import com.feutech.whatthehack.database.PlaceHelper;
 import com.feutech.whatthehack.listeners.GetAddressListener;
+import com.feutech.whatthehack.listeners.GetLatLngListener;
 import com.feutech.whatthehack.listeners.GetPlacesListener;
 import com.feutech.whatthehack.listeners.GetPostListener;
 import com.feutech.whatthehack.listeners.LoginListener;
+import com.feutech.whatthehack.listeners.PostListener;
 import com.feutech.whatthehack.listeners.RegisterListener;
 import com.feutech.whatthehack.model.Place;
 import com.feutech.whatthehack.model.User;
@@ -238,17 +240,20 @@ public class MobileApi {
 		}
 	}
 	
-	public static void getPosts(GetPostListener listener) {
-		Thread t = new Thread(new ThreadGetPosts(listener));
+	public static void getPosts(double lat, double lng, GetPostListener listener) {
+		Thread t = new Thread(new ThreadGetPosts(lat, lng, listener));
 		t.run();
 	}
 	
 	private static class ThreadGetPosts implements Runnable {
 
 		private GetPostListener listener;
+		private double lat, lng;
 		
-		public ThreadGetPosts(GetPostListener listener) {
+		public ThreadGetPosts(double lat, double lng, GetPostListener listener) {
 			this.listener = listener;
+			this.lat = lat;
+			this.lng = lng;
 		}
 		
 		@Override
@@ -262,6 +267,8 @@ public class MobileApi {
 				
 							try {
 								JSONObject responseObject = new JSONObject(response);
+								
+								listener.getPostResult(true, "success");
 							} catch (JSONException e) {
 								e.printStackTrace();
 								listener.getPostResult(false, e.getMessage());
@@ -284,6 +291,8 @@ public class MobileApi {
 					HashMap<String, String> data = new HashMap<String, String>();
 					
 					data.put("tag", Constants.TAG_GET_POSTS);
+					data.put("lat", String.valueOf(lat));
+					data.put("lon", String.valueOf(lng));
 					
 					return data;
 				}
@@ -291,6 +300,54 @@ public class MobileApi {
 			
 			AppController.getInstance().addToRequestQueue(toPost);
 		}
+	}
+	
+	public static void post(HashMap<String, String> data, PostListener listener) {
+		Thread t = new Thread (new ThreadPost(data, listener));
+		t.run();
+	}
+	
+	private static class ThreadPost implements Runnable {
+
+		private HashMap<String, String> data;
+		private PostListener listener;
+		
+		public ThreadPost(HashMap<String, String> data, PostListener listener) {
+			this.data = data;
+			this.listener = listener;
+		}
+		
+		@Override
+		public void run() {
+			StringRequest toPost = new StringRequest(Method.POST, Constants.BASE_URL,
+					new Response.Listener<String>() {
+
+						@Override
+						public void onResponse(String response) {
+							Log.i("TAG", "response on post: " + response);
+							listener.postResult(true, "success");
+						}
+					}, 
+					
+					new Response.ErrorListener() {
+
+						@Override
+						public void onErrorResponse(VolleyError err) {
+							err.printStackTrace();
+							listener.postResult(false, err.getMessage());
+						}
+					})
+			{
+				@Override
+				protected Map<String, String> getParams()
+						throws AuthFailureError {
+					return data;
+				}
+			};
+			
+			AppController.getInstance().addToRequestQueue(toPost);
+		}
+		
 	}
 	
 	public static void getFormattedAddress(double lon, double lat, GetAddressListener listener) {
@@ -349,6 +406,72 @@ public class MobileApi {
 					data.put("lat", String.valueOf(lat));
 					data.put("tag", "address");
 					
+					return data;
+				}
+			};
+			
+			AppController.getInstance().addToRequestQueue(toPost);
+		}
+	}
+	
+	public static void getLatLng(String place_name, GetLatLngListener listener) {
+		Thread t = new Thread(new ThreadGetLatLng(place_name, listener));
+		t.run();
+	}
+	
+	private static class ThreadGetLatLng implements Runnable {
+
+		private String place_name;
+		private GetLatLngListener listener;
+		
+		public ThreadGetLatLng (String place_name, GetLatLngListener listener) {
+			this.place_name = place_name;
+			this.listener = listener;
+		}
+		
+		@Override
+		public void run() {
+			StringRequest toPost = new StringRequest(Method.POST, Constants.BASE_URL, 
+					new Response.Listener<String>() {
+
+						@Override
+						public void onResponse(String response) {
+							Log.i("TAG", "response on get latlan: " + response);
+							
+							try {
+								JSONObject jsonResponse = new JSONObject(response);
+								
+								if (jsonResponse.getInt("success") == 1) {
+									JSONObject jsonAddress = jsonResponse.getJSONObject("address");
+									
+									double lat = jsonAddress.getDouble("lat");
+									double lng = jsonAddress.getDouble("lng");
+									
+									listener.getLatLngResult(lng, lat, "success");
+								} else {
+									listener.getLatLngResult(0, 0, jsonResponse.getString("error_msg"));
+								}
+							} catch (JSONException e) {
+								e.printStackTrace();
+								listener.getLatLngResult(0, 0, e.getMessage());
+							}
+						}
+					}, 
+					
+					new Response.ErrorListener() {
+
+						@Override
+						public void onErrorResponse(VolleyError err) {
+							listener.getLatLngResult(0, 0, err.getMessage());
+						}
+					})
+			{
+				@Override
+				protected Map<String, String> getParams()
+						throws AuthFailureError {
+					HashMap<String, String> data = new HashMap<String, String>();
+					data.put("address", place_name);
+					data.put("tag", Constants.TAG_GET_LATLAN);
 					return data;
 				}
 			};

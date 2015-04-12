@@ -29,11 +29,12 @@ import android.widget.Toast;
 import com.feutech.whatthehack.adapters.ListViewPlacesAdapter;
 import com.feutech.whatthehack.api.MobileApi;
 import com.feutech.whatthehack.database.PlaceHelper;
+import com.feutech.whatthehack.listeners.GetLatLngListener;
 import com.feutech.whatthehack.listeners.GetPlacesListener;
 import com.feutech.whatthehack.model.Place;
 import com.feutech.whatthehack.utilities.ConnectionChecker;
 
-public class PlacesActivity extends Activity implements OnItemClickListener, GetPlacesListener{
+public class PlacesActivity extends Activity implements OnItemClickListener, GetPlacesListener, GetLatLngListener{
 
 	private ListView placesListView;
 	private ArrayList<Place> places;
@@ -41,6 +42,8 @@ public class PlacesActivity extends Activity implements OnItemClickListener, Get
 	private ProgressDialog progressDialog;
 	
 	private ListViewPlacesAdapter adapter;
+	
+	private Place place;
 	
 	private static final long delay = 2000L;
     private boolean mRecentlyBackPressed = false;
@@ -64,15 +67,18 @@ public class PlacesActivity extends Activity implements OnItemClickListener, Get
 		placesListView = (ListView) findViewById(R.id.places_listView);
 		placesListView.setOnItemClickListener(this);
 		
+		Log.i("TAG", "onCreate");
+		
 		progressDialog = new ProgressDialog(this);
 		progressDialog.setMessage("Loading...");
 		progressDialog.setCancelable(false);
-		progressDialog.show();
 		
 		places.add(new Place("What's near me?", null));
 		
-		if (ConnectionChecker.isNetworkAvailable(this))
+		if (ConnectionChecker.isNetworkAvailable(this)) {
+			progressDialog.show();
 			MobileApi.getPlaces(this, this);
+		}
 		else {
 			places.addAll(getPlacesFromDB());
 			adapter = new ListViewPlacesAdapter(this, places);
@@ -83,9 +89,35 @@ public class PlacesActivity extends Activity implements OnItemClickListener, Get
 	
 	@Override
 	public void onItemClick(AdapterView<?> arg0, View arg1, int position, long arg3) {
+		
+		place = (Place) arg0.getAdapter().getItem(position);
+		
+		if (position > 0) {
+			getLatLng(place.getPlace_name());
+		} else {
+			Intent intent = new Intent(this, LandingFragmentActivity.class);
+			intent.putExtra(LandingFragmentActivity.PLACE_NAME, place.getPlace_name());
+			intent.putExtra("whatsNearToMe", true);
+			startActivity(intent);
+		}
+	}
+
+	private void getLatLng(String place_name) {
+		progressDialog.show();
+		
+		MobileApi.getLatLng(place_name, this);
+	}
+	
+	@Override
+	public void getLatLngResult(double lon, double lat, String text) {
+		if (progressDialog.isShowing())
+			progressDialog.dismiss();
+		
 		Intent intent = new Intent(this, LandingFragmentActivity.class);
-		Place place = (Place) arg0.getAdapter().getItem(position);
 		intent.putExtra(LandingFragmentActivity.PLACE_NAME, place.getPlace_name());
+		intent.putExtra("whatsNearToMe", false);
+		intent.putExtra("lat", lat);
+		intent.putExtra("lon", lon);
 		startActivity(intent);
 	}
 
