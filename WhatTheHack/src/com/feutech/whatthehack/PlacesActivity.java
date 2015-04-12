@@ -73,7 +73,7 @@ public class PlacesActivity extends Activity implements OnItemClickListener, Get
 		progressDialog.setMessage("Loading...");
 		progressDialog.setCancelable(false);
 		
-		places.add(new Place("What's near me?", null));
+		places.add(new Place("What's near me?", "http://feueac.acm.org/turistagram/places/ic_collage.png"));
 		
 		if (ConnectionChecker.isNetworkAvailable(this)) {
 			progressDialog.show();
