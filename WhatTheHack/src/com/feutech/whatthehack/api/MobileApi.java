@@ -18,14 +18,17 @@ import com.android.volley.toolbox.StringRequest;
 import com.feutech.whatthehack.AppController;
 import com.feutech.whatthehack.constants.Constants;
 import com.feutech.whatthehack.database.PlaceHelper;
+import com.feutech.whatthehack.database.PostHelper;
 import com.feutech.whatthehack.listeners.GetAddressListener;
 import com.feutech.whatthehack.listeners.GetLatLngListener;
 import com.feutech.whatthehack.listeners.GetPlacesListener;
 import com.feutech.whatthehack.listeners.GetPostListener;
 import com.feutech.whatthehack.listeners.LoginListener;
+import com.feutech.whatthehack.listeners.PerformVoteListener;
 import com.feutech.whatthehack.listeners.PostListener;
 import com.feutech.whatthehack.listeners.RegisterListener;
 import com.feutech.whatthehack.model.Place;
+import com.feutech.whatthehack.model.Post;
 import com.feutech.whatthehack.model.User;
 import com.feutech.whatthehack.utilities.UserSingleton;
 
@@ -240,20 +243,25 @@ public class MobileApi {
 		}
 	}
 	
-	public static void getPosts(double lat, double lng, GetPostListener listener) {
-		Thread t = new Thread(new ThreadGetPosts(lat, lng, listener));
+	public static void getPosts(Context context, String username, double lat, double lng, GetPostListener listener) {
+		Thread t = new Thread(new ThreadGetPosts(context, username, lat, lng, listener));
 		t.run();
 	}
 	
 	private static class ThreadGetPosts implements Runnable {
 
+		private Context context;
+		
 		private GetPostListener listener;
 		private double lat, lng;
+		private String username;
 		
-		public ThreadGetPosts(double lat, double lng, GetPostListener listener) {
+		public ThreadGetPosts(Context context, String username, double lat, double lng, GetPostListener listener) {
+			this.context = context;
 			this.listener = listener;
 			this.lat = lat;
 			this.lng = lng;
+			this.username = username;
 		}
 		
 		@Override
@@ -268,6 +276,53 @@ public class MobileApi {
 							try {
 								JSONObject responseObject = new JSONObject(response);
 								
+								if (responseObject.getInt("success") == 1) {
+									
+									JSONArray array = responseObject.getJSONArray("details");
+
+									PostHelper helper = new PostHelper(context);
+									helper.open();
+									helper.create();
+									helper.deleteAll();
+									
+									for (int x = 0; x < array.length(); x++) {
+										
+										JSONObject jsonObject = array.getJSONObject(x);
+										
+										int post_id = jsonObject.getInt("Post_Id");
+										String username = jsonObject.getString("Username");
+										String place_name = jsonObject.getString("Place_Name");
+										double lat = jsonObject.getDouble("Lat");
+										double lon = jsonObject.getDouble("Lon");
+										String statusMessage = jsonObject.getString("Status");
+										String photo = jsonObject.getString("Photo");
+										String category = jsonObject.getString("Category");
+										String datePosted = jsonObject.getString("Posted_dnt");
+										
+										int upvote = 0;
+										int downvote = 0;
+										
+										if (jsonObject.has("Upvote"))
+											upvote = jsonObject.getInt("Upvote");
+										
+										if (jsonObject.has("Downvote"))
+											downvote = jsonObject.getInt("Downvote");
+										
+										int totalUpvote = jsonObject.getInt("All_Upvote");
+										int totalDownvote = jsonObject.getInt("All_Downvote");
+										
+										helper.insert(new Post(post_id,
+												username, place_name, lat, lon,
+												statusMessage, photo, category,
+												datePosted, upvote, downvote,
+												totalUpvote, totalDownvote));
+									}
+									helper.close();
+									
+									listener.getPostResult(true, "success");
+								} else {
+									listener.getPostResult(false, responseObject.has("error_msg") ? responseObject.getString("error_msg") : "Error");
+								}
 								listener.getPostResult(true, "success");
 							} catch (JSONException e) {
 								e.printStackTrace();
@@ -293,6 +348,7 @@ public class MobileApi {
 					data.put("tag", Constants.TAG_GET_POSTS);
 					data.put("lat", String.valueOf(lat));
 					data.put("lon", String.valueOf(lng));
+					data.put("username", username);
 					
 					return data;
 				}
@@ -477,6 +533,62 @@ public class MobileApi {
 			};
 			
 			AppController.getInstance().addToRequestQueue(toPost);
+		}
+		
+	}
+	
+	public static void votePost (String username, int post_id, String vote, PerformVoteListener listener) {
+		Thread t = new Thread(new ThreadVotePost(username, post_id, vote, listener));
+	}
+	
+	private static class ThreadVotePost implements Runnable {
+
+		private String username;
+		private int post_id;
+		private String vote;
+		
+		private PerformVoteListener listener;
+		
+		public ThreadVotePost (String username, int post_id, String vote, PerformVoteListener listener) {
+			this.username = username;
+			this.post_id = post_id;
+			this.listener = listener;
+			this.vote = vote;
+		}
+		
+		@Override
+		public void run() {
+			StringRequest toPost = new StringRequest(Method.POST, Constants.BASE_URL, 
+					new Response.Listener<String>() {
+
+						@Override
+						public void onResponse(String response) {
+							Log.i("TAG", "response on vote performed: " + response);
+						}
+					}, 
+					
+					new Response.ErrorListener() {
+
+						@Override
+						public void onErrorResponse(VolleyError err) {
+							err.printStackTrace();
+						}
+					})
+			{
+				@Override
+				protected Map<String, String> getParams()
+						throws AuthFailureError {
+					
+					HashMap<String, String> data = new HashMap<String, String>();
+					
+					data.put("tag", "vote");
+					data.put("username", username);
+					data.put("postid", String.valueOf(post_id));
+					data.put("vote", vote);
+					
+					return data;
+				}
+			};
 		}
 		
 	}

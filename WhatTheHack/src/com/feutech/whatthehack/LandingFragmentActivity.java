@@ -19,7 +19,9 @@ import com.feutech.whatthehack.api.MobileApi;
 import com.feutech.whatthehack.fragments.MapPlacesFragment;
 import com.feutech.whatthehack.fragments.PostsListViewFragment;
 import com.feutech.whatthehack.listeners.GetPostListener;
+import com.feutech.whatthehack.model.User;
 import com.feutech.whatthehack.utilities.ConnectionChecker;
+import com.feutech.whatthehack.utilities.UserSingleton;
 import com.google.android.gms.maps.model.LatLng;
 
 public class LandingFragmentActivity extends FragmentActivity implements OnClickListener, GetPostListener{
@@ -81,8 +83,6 @@ public class LandingFragmentActivity extends FragmentActivity implements OnClick
 			lat = intent.getDoubleExtra("lat", 0);
 			lng = intent.getDoubleExtra("lon", 0);
 		}
-//		viewPager = (ViewPager) findViewById(R.id.pager);
-//		viewPager.setAdapter(new SlidePagerAdapter(fm));
 	}
 	
 	@Override
@@ -90,12 +90,15 @@ public class LandingFragmentActivity extends FragmentActivity implements OnClick
 		super.onResume();
 		
 		if (ConnectionChecker.isNetworkAvailable(this)) {
+			
+			User user = (User) UserSingleton.getInstance().getObject();
+			
 			progressDialog = new ProgressDialog(this);
 			progressDialog.setMessage("Loading...");
 			progressDialog.setCancelable(false);
 			progressDialog.show();
 			
-			MobileApi.getPosts(lat, lng, this);
+			MobileApi.getPosts(this, user.getUsername(), lat, lng, this);
 		} else {
 			//DISPLAY NO CONNECTION MESSAGE
 		}
